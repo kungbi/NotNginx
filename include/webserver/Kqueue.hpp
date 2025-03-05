@@ -7,11 +7,13 @@
 # include <sys/types.h>
 # include <unistd.h>
 
-enum EVENT_TYPE {
-	SERVER,
-	REQUEST,
-	RESPONSE
-};
+namespace KQUEUE_EVENT {
+	enum TYPE {
+		SERVER,
+		REQUEST,
+		RESPONSE
+	};
+}
 
 typedef struct EventInfo {
 	int type;

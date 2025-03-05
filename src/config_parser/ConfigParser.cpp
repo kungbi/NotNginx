@@ -13,20 +13,26 @@ void ConfigParser::tokenize(std::string config_data)
 
 IConfigContext* ConfigParser::parseConfig()
 {
-	IConfigContext *root = new IConfigContext(NULL, MAIN);
-	
-	try
-	{
-		parseConfigRecursive(configTokens_, root);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		deleteTree(root);
-		return NULL;
-	}
+    IConfigContext* root = new IConfigContext(nullptr, 0);
+    IConfigContext* rootContext = nullptr; // 최종적으로 반환할 root.
 
-	return root;
+    try
+    {
+        parseConfigRecursive(configTokens_, root);
+        // fix: root의 첫 번째 자식(`http`)을 진짜 루트로 설정
+        if (!root->getChild().empty())
+		{
+            rootContext = root->getChild()[0];
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        deleteTree(root);
+        return nullptr;
+    }
+
+    return rootContext;
 }
 
 void ConfigParser::parseConfigRecursive(std::vector<std::string> configTokens, IConfigContext* parentContext)

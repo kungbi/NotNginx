@@ -11,7 +11,7 @@ void Webserver::connectClient(struct kevent& event) {
 		throw std::runtime_error("Failed to accept client");
 	}
 
-	kqueue_.addEvent(clientFd, REQUEST, serverFd);
+	kqueue_.addEvent(clientFd, KQUEUE_EVENT::REQUEST, serverFd);
 }
 
 int Webserver::processClientRequest(struct kevent& event) {
@@ -27,19 +27,19 @@ void Webserver::processEvents(struct kevent& event) {
 
 	std::cout << "Processing event for FD: " << fd << std::endl;
 
-	if (eventInfo->type == SERVER) {
+	if (eventInfo->type == KQUEUE_EVENT::SERVER) {
 		std::cout << "Server event." << std::endl;
 		connectClient(event);
 	}
 
-	if (eventInfo->type == REQUEST) {
+	if (eventInfo->type == KQUEUE_EVENT::REQUEST) {
 		std::cout << "Request event." << std::endl;
 		if (processClientRequest(event) == 0) {
 			delete eventInfo;
 		}
 	}
 
-	if (eventInfo->type == RESPONSE) {
+	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 	}
 
 }

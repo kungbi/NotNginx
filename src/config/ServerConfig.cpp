@@ -35,10 +35,6 @@ ServerConfig::ServerConfig(
 		throw std::invalid_argument("Invalid clientMaxNodySize");
 	}
 
-	if (errorPages.empty()) {
-		throw std::invalid_argument("Error pages is empty");
-	}
-
 	if (locations.empty()) {
 		throw std::invalid_argument("Locations is empty");
 	}
