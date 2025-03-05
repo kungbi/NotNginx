@@ -6,20 +6,21 @@
 # include "Socket.hpp"
 # include "ServerConfig.hpp"
 # include "Kqueue.hpp"
-# include "Requests.hpp"
-# include "Response.hpp"
+# include "Connections.hpp"
 
 class Server {
 private:
 	Socket& serverSocket_;
 	ServerConfig& serverConfig_;
 	Kqueue& kqueue_;
-	Requests requests_;
+	Connections connections_;
+
 
 	Server(void);
 
 	int processClientData(int clientFd, const char* buffer, ssize_t bytesRead);
 	void sendResponse(int clientFd, const std::string& response);
+	void addRequestBuffer(int clientFd, const char* buffer, size_t bytesRead) const;
 
 public:
 	Server(Socket &serverSocket, ServerConfig& serverConfig, Kqueue& kqueue);
