@@ -13,13 +13,6 @@ int Server::acceptClient() {
 	return serverSocket_.acceptConnection(); // 클라이언트 요청을 수락하고 FD 반환
 }
 
-void Server::addRequestBuffer(int clientFd, const char* buffer, size_t bytesRead) const {
-	if (!this->connections_.hasConnection(clientFd)) {
-		this->connections_.addConnection(clientFd);
-	}
-
-}
-
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
 
@@ -31,7 +24,13 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	// this->connections_.addRequestBuffer(clientFd, buffer, bytesRead);
 
-	if (request->isComplete()) {
+	if (!this->connections_.hasConnection(clientFd)) {
+		this->connections_.addConnection(clientFd);
+	}
+
+	this->connections_.appendRequestData(clientFd, buffer, bytesRead);
+
+	if (this->connections_.hasRequest(clientFd)) {
 		Response response = Response::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
@@ -49,7 +48,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			.build();
 		
 		sendResponse(clientFd, response.getResponse());
-		this->requests_.removeRequest(clientFd);
 		return 0;
 	}
 
