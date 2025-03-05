@@ -147,28 +147,3 @@ void Request::setExtension(const std::string& extension) {
 void Request::setPath(const std::string& path) {
 	path_ = path;
 }
-
-// void Request::test()
-// {
-// 	std::cout << "Type : ";
-// 	switch (requestType_) {
-// 		case GET:    std::cout << "GET"; break;
-// 		case POST:   std::cout << "POST"; break;
-// 		case PUT:    std::cout << "PUT"; break;
-// 		case PATCH:  std::cout << "PATCH"; break;
-// 		case DELETE: std::cout << "DELETE"; break;
-// 	}
-// 	std::cout << std::endl;
-// 	std::cout<<"protocolVersion : "<< protocolVersion_ << std::endl;
-// 	std::cout<<"host_ : "<< host_ << std::endl;
-// 	std::cout<<"target :"<< target_ << std::endl;
-// 	std::cout<<"query : " << query_ << std::endl;
-// 	std::cout<<"path : " << path_ << std::endl;
-// 	std::cout<<"fileName : " << fileName_ << std::endl;
-// 	std::cout<<"extension : " << extension_ << std::endl;
-// 	std::cout<<"portNumber : "<< port_ << std::endl;
-// 	std::cout<<"target : "<< target_ << std::endl;
-// 	std::cout<<"connection : " << connection_ << std::endl;
-// 	std::cout<<"accept : " << accept_ << std::endl;
-// 	std::cout<<"content-length : " << contentLength_<<std::endl;
-// }

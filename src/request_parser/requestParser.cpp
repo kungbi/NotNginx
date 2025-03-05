@@ -82,8 +82,6 @@ void RequestParser::parseRequestHeader(Request *request)
     if (!currentHeader.empty()) {
         processHeader(request, currentHeader);
     }
-
-    // request->test();
 }
 
 // 새로운 헤더 처리 함수

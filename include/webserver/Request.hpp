@@ -42,7 +42,6 @@ private:
 
 public:
 	Request(int fd);
-	// void test();
 
 	bool isComplete() const;
 	void appendData(const char* data, size_t length);
