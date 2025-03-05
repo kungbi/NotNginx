@@ -16,14 +16,6 @@ int Server::acceptClient() {
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
 
-	// if (!this->requests_.isExist(clientFd)) {
-	// 	this->requests_.addRequest(new Request(clientFd));
-	// }
-	// Request* request = this->requests_.getRequest(clientFd);
-	// request->appendData(buffer, bytesRead);
-
-	// this->connections_.addRequestBuffer(clientFd, buffer, bytesRead);
-
 	if (!this->connections_.hasConnection(clientFd)) {
 		this->connections_.addConnection(clientFd);
 	}
