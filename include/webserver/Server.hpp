@@ -6,17 +6,14 @@
 # include "Socket.hpp"
 # include "ServerConfig.hpp"
 # include "Kqueue.hpp"
-# include "Requests.hpp"
-# include "Response.hpp"
-# include "../request_parser/requestParser.hpp"
+# include "Connections.hpp"
 
 class Server {
 private:
 	Socket& serverSocket_;
 	ServerConfig& serverConfig_;
 	Kqueue& kqueue_;
-	Requests requests_;
-	RequestParser requestParser_;
+	Connections connections_;
 
 	Server(void);
 

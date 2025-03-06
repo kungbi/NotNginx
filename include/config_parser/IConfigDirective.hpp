@@ -16,13 +16,14 @@ enum DirectiveType
 	INDEX,
 	ALLOW_METHODS,
 	ACCESS_LOG,
-	AUTO_INDEX,
+	AUTOINDEX,
 	FASTCGI_PASS,
 	FASTCGI_INDEX,
 	FASTCGI_PARAM,
 	CLIENT_MAX_BODY_SIZE,
 	RETURN,
 	INCLUDE,
+	CGI_INTERPRETER,
 };
 
 class IConfigDirective
@@ -40,6 +41,7 @@ class IConfigDirective
 
 		IConfigContext* getParent() const;
 		int getType() const;
+		
 
 		void addValue(std::string value);
 		std::vector<std::string> getValues() const;

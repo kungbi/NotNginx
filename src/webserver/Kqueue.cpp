@@ -22,13 +22,13 @@ Kqueue::~Kqueue() {
 }
 
 int Kqueue::getFilter(int eventType) {
-	if (eventType == SERVER) {
+	if (eventType == KQUEUE_EVENT::SERVER) {
 		return EVFILT_READ;
 	}
-	if (eventType == REQUEST) {
+	if (eventType == KQUEUE_EVENT::REQUEST) {
 		return EVFILT_READ;
 	}
-	if (eventType == RESPONSE) {
+	if (eventType == KQUEUE_EVENT::RESPONSE) {
 		return EVFILT_WRITE;
 	}
 	throw std::runtime_error("Invalid event type");

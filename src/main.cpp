@@ -4,45 +4,30 @@
 #include "HTTPConfig.hpp"
 #include "LocationConfig.hpp"
 
-WebserverConfig* initializeConfig() {
-	// Location1 생성
-	std::vector<std::string> location1Methods;
-	location1Methods.push_back("GET");
-	location1Methods.push_back("POST");
+#include "ConfigReader.hpp"
+#include "ConfigParser.hpp"
+#include "ConfigAdapter.hpp"
 
-	std::map<int, std::string> location1Redirect;
-	location1Redirect[301] = "/redirected";
+WebserverConfig* initializeConfig(std::string configPath)
+{
+    // 설정 파일을 읽기
+    ConfigReader reader;
+    std::string configContent = reader.readConfigFile(configPath);  // 설정 파일 경로
 
-	std::vector<std::string> location1Index;
-	location1Index.push_back("index.html");
+    if (configContent.empty()) throw std::runtime_error("Failed to read configuration file.");
 
-	LocationConfig location1(
-		"/", "/var/www/html", location1Methods, false, location1Redirect, location1Index, ""
-	);
+    // 설정을 파싱하여 트리 구조 생성
+    ConfigParser parser;
+    parser.tokenize(configContent);
+    IConfigContext* rootContext = parser.parseConfig();
 
-	// ServerConfig1 생성
-	std::map<int, std::string> server1ErrorPages;
-	server1ErrorPages[404] = "/404.html";
-	server1ErrorPages[500] = "/50x.html";
-	server1ErrorPages[501] = "/50x.html";
-	server1ErrorPages[502] = "/50x.html";
+    if (!rootContext) throw std::runtime_error("Failed to parse configuration.");
 
-	std::vector<LocationConfig> server1Locations;
-	server1Locations.push_back(location1);
-	
-	
-	ServerConfig serverConfig1(
-		"0.0.0.0", 8080, "localhost", 10, server1ErrorPages, server1Locations, true
-	);
+    // 트리를 HTTPConfig 객체로 변환
+    ConfigData configData(rootContext);
+    HTTPConfig httpConfig = ConfigAdapter::convertToHTTPConfig(configData);
 
-	// HTTPConfig 인스턴스 생성
-	std::vector<ServerConfig> servers;
-	servers.push_back(serverConfig1);
-
-	HTTPConfig httpConfig(servers);
-
-	// WebserverConfig 인스턴스 생성
-	return new WebserverConfig(httpConfig);
+    return new WebserverConfig(httpConfig);
 }
 
 #include <stdlib.h>
@@ -59,7 +44,7 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 		Socket* serverSocket = new Socket(serverConfig.getHost(), serverConfig.getPort());
 		Server* server = servers->createServer(*serverSocket, serverConfig, *kqueue);
 
-		kqueue->addEvent(server->getSocketFd(), SERVER, server->getSocketFd());
+		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);
 	}
 
@@ -68,15 +53,14 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 
 int main(int argc, char* argv[]) {
 	atexit(leak);
-	WebserverConfig* config = initializeConfig();
-	std::cout << "WebserverConfig initialized" << std::endl;
-	std::cout << "HTTPConfig: " << config->getHTTPConfig().getServers().size() << std::endl;
+	if (2 < argc)
+		throw std::runtime_error("Invalid number of arguments");
 
-	std::cout << "ServerConfig: " << config->getHTTPConfig().getServers()[0].getServerName() << std::endl;
-	std::cout << "Port: " << config->getHTTPConfig().getServers()[0].getPort() << std::endl;
-
-	std::cout << std::endl;
-
+	std::string configPath = "default.conf";
+	if (2 == argc)
+		configPath = argv[1];
+	
+	WebserverConfig* config = initializeConfig(configPath);
 	Webserver* webserver = dependencyInjection(config);
 	webserver->start();
 
