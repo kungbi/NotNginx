@@ -16,13 +16,13 @@ int Server::acceptClient() {
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
 
-	if (!this->requests_.isExist(clientFd)) {
-		this->requests_.addRequest(new Request(clientFd));
+	if (!this->connections_.hasConnection(clientFd)) {
+		this->connections_.addConnection(clientFd);
 	}
-	Request* request = this->requests_.getRequest(clientFd);
-	request->appendData(buffer, bytesRead);
 
-	if (request->isComplete()) {
+	this->connections_.appendRequestData(clientFd, buffer, bytesRead);
+
+	if (this->connections_.hasRequest(clientFd)) {
 		Response response = Response::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
@@ -40,7 +40,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			.build();
 		
 		sendResponse(clientFd, response.getResponse());
-		this->requests_.removeRequest(clientFd);
 		return 0;
 	}
 
