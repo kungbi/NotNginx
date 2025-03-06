@@ -1,4 +1,4 @@
-#include "mimeTypes.hpp"
+#include "MimeTypes.hpp"
 
 #include <iostream>
 #include <map>
