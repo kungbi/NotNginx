@@ -1,8 +1,7 @@
 #include "RequestParser.hpp"
 #include "Request.hpp"
 
-Request RequestParser::parseRequestHeader(const std::string originalRequest)
-{
+Request RequestParser::parseRequestHeader(const std::string originalRequest) {
 	if (originalRequest.empty()) {
 		throw std::invalid_argument("originalRequest is empty!");
 	}
@@ -11,14 +10,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 	std::string line;
 
 	// 1️⃣ 첫 번째 줄 (요청 라인) 파싱
-	if (!std::getline(stream, line)) {
-		throw std::invalid_argument("No request line found");
-	}
-
-	// \r\n 처리
-	if (!line.empty() && line.back() == '\r') {
-		line.pop_back();
-	}
+	std::tie(line, stream) = parseRequestLine(stream);
 
 	std::istringstream lineStream(line);
 	std::string method, target, version;
@@ -28,7 +20,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 		throw std::invalid_argument("Invalid request line");
 	}
 
-	UriComponents uri = RequestParser::parseUri(target);
+	UriComponents uri = parseUri(target);
 
 	// 헤더 파싱을 위한 변수들
 	std::string host, connection, accept, contentType;
@@ -36,8 +28,39 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 	size_t contentLength = 0;
 
 	// 2️⃣ 헤더 파싱
-	std::string currentHeader;  // 멀티라인 헤더를 위한 변수
-	
+	std::tie(host, port, connection, contentLength, accept, contentType) = parseHeaders(stream);
+
+	// 3️⃣ 바디 파싱
+	std::string body = parseBody(stream, contentLength);
+
+	// Request 객체 생성 및 반환
+	RequestType requestType = (method == "GET") ? GET : (method == "POST") ? POST : (method == "PUT") ? PUT : (method == "PATCH") ? PATCH : DELETE;
+	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, body, contentType);
+
+	return request;
+}
+
+std::tuple<std::string, std::istringstream> RequestParser::parseRequestLine(std::istringstream& stream) {
+	std::string line;
+	if (!std::getline(stream, line)) {
+		throw std::invalid_argument("No request line found");
+	}
+
+	// \r\n 처리
+	if (!line.empty() && line.back() == '\r') {
+		line.pop_back();
+	}
+
+	return std::make_tuple(line, stream);
+}
+
+std::tuple<std::string, int, std::string, size_t, std::string, std::string> RequestParser::parseHeaders(std::istringstream& stream) {
+	std::string host, connection, accept, contentType;
+	int port = 0;
+	size_t contentLength = 0;
+	std::string currentHeader;
+	std::string line;
+
 	while (std::getline(stream, line)) {
 		if (!line.empty() && line.back() == '\r') {
 			line.pop_back();
@@ -56,7 +79,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 
 		// 이전 헤더 처리
 		if (!currentHeader.empty()) {
-			auto headerValues = RequestParser::processHeader(currentHeader);
+			auto headerValues = processHeader(currentHeader);
 			host = headerValues.host;
 			port = headerValues.port;
 			connection = headerValues.connection;
@@ -69,7 +92,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 
 	// 마지막 헤더 처리
 	if (!currentHeader.empty()) {
-		auto headerValues = RequestParser::processHeader(currentHeader);
+		auto headerValues = processHeader(currentHeader);
 		host = headerValues.host;
 		port = headerValues.port;
 		connection = headerValues.connection;
@@ -78,21 +101,18 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 		contentType = headerValues.contentType;
 	}
 
-	// 3️⃣ 바디 파싱
+	return std::make_tuple(host, port, connection, contentLength, accept, contentType);
+}
+
+std::string RequestParser::parseBody(std::istringstream& stream, size_t contentLength) {
 	std::string body;
 	if (contentLength > 0) {
 		body.resize(contentLength);
 		stream.read(&body[0], contentLength);
 	}
-
-	// Request 객체 생성 및 반환
-	RequestType requestType = (method == "GET") ? GET : (method == "POST") ? POST : (method == "PUT") ? PUT : (method == "PATCH") ? PATCH : DELETE;
-	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, body, contentType);
-
-	return request;
+	return body;
 }
 
-// 새로운 헤더 처리 함수
 HeaderValues RequestParser::processHeader(const std::string& header) {
 	HeaderValues headerValues;
 	size_t colonPos = header.find(':');
