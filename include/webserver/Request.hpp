@@ -64,6 +64,7 @@ public:
 	std::string getFilename() const;
 	std::string getExtension() const;
 	std::string getPath() const;
+	std::string getBody() const;
 };
 
 #endif

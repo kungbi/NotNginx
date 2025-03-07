@@ -76,3 +76,7 @@ std::string Request::getExtension() const {
 std::string Request::getPath() const {
 	return path_;
 }
+
+std::string Request::getBody() const {
+	return body_;
+}
