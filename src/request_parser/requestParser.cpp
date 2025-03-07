@@ -56,14 +56,26 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 
 		// 이전 헤더 처리
 		if (!currentHeader.empty()) {
-			RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept, contentType);
+			auto headerValues = RequestParser::processHeader(currentHeader);
+			host = headerValues.host;
+			port = headerValues.port;
+			connection = headerValues.connection;
+			contentLength = headerValues.contentLength;
+			accept = headerValues.accept;
+			contentType = headerValues.contentType;
 		}
 		currentHeader = line;
 	}
 
 	// 마지막 헤더 처리
 	if (!currentHeader.empty()) {
-		RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept, contentType);
+		auto headerValues = RequestParser::processHeader(currentHeader);
+		host = headerValues.host;
+		port = headerValues.port;
+		connection = headerValues.connection;
+		contentLength = headerValues.contentLength;
+		accept = headerValues.accept;
+		contentType = headerValues.contentType;
 	}
 
 	// 3️⃣ 바디 파싱
@@ -81,11 +93,12 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 }
 
 // 새로운 헤더 처리 함수
-void RequestParser::processHeader(const std::string& header, std::string& host, int& port, std::string& connection, size_t& contentLength, std::string& accept, std::string& contentType) {
+HeaderValues RequestParser::processHeader(const std::string& header) {
+	HeaderValues headerValues;
 	size_t colonPos = header.find(':');
 	if (colonPos == std::string::npos) {
 		std::cerr << "Warning: Invalid header format: " << header << std::endl;
-		return;
+		return headerValues;
 	}
 
 	std::string key = header.substr(0, colonPos);
@@ -100,23 +113,24 @@ void RequestParser::processHeader(const std::string& header, std::string& host, 
 		if (key == "Host") {
 			size_t portPos = value.find(':');
 			if (portPos != std::string::npos) {
-				host = value.substr(0, portPos);
-				port = std::stoi(value.substr(portPos + 1));
+				headerValues.host = value.substr(0, portPos);
+				headerValues.port = std::stoi(value.substr(portPos + 1));
 			} else {
-				host = value;
+				headerValues.host = value;
 			}
 		} else if (key == "Connection") {
-			connection = value;
+			headerValues.connection = value;
 		} else if (key == "Content-Length") {
-			contentLength = std::stoi(value);
+			headerValues.contentLength = std::stoi(value);
 		} else if (key == "Accept") {
-			accept = value;
+			headerValues.accept = value;
 		} else if (key == "Content-Type") {
-			contentType = value;
+			headerValues.contentType = value;
 		}
 	} catch (const std::exception& e) {
 		std::cerr << "Error processing header '" << key << "': " << e.what() << std::endl;
 	}
+	return headerValues;
 }
 
 UriComponents RequestParser::parseUri(const std::string& target) {
