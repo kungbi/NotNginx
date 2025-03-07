@@ -13,7 +13,8 @@ Request::Request(
 	int port,
 	const std::string& connection,
 	size_t contentLength,
-	const std::string& accept
+	const std::string& accept,
+	const std::string& body
 ) : requestType_(requestType),
 	protocolVersion_(protocolVersion),
 	host_(host),
@@ -25,7 +26,8 @@ Request::Request(
 	port_(port),
 	connection_(connection),
 	contentLength_(contentLength),
-	accept_(accept) {}
+	accept_(accept),
+	body_(body) {}
 
 RequestType Request::getRequestType() const {
 	return requestType_;

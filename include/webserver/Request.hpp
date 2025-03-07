@@ -30,7 +30,7 @@ private:
 	size_t contentLength_;
 	std::string accept_;
 
-
+	std::string body_;
 
 	Request();
 
@@ -47,7 +47,8 @@ public:
 		int port,
 		const std::string& connection,
 		size_t contentLength,
-		const std::string& accept
+		const std::string& accept,
+		const std::string& body
 	);
 
 	const std::string& getOriginalRequest() const;
