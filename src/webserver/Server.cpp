@@ -42,7 +42,17 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
 			"Target: " + request.getTarget() + "\n" +
 			"Version: " + request.getProtocolVersion() + "\n" +
-			"Body: " + request.getBody();
+			"Host: " + request.getHost() + "\n" +
+			"Port: " + std::to_string(request.getPort()) + "\n" +
+			"Connection: " + request.getConnection() + "\n" +
+			"Content-Length: " + std::to_string(request.getContentLength()) + "\n" +
+			"Accept: " + request.getAccept() + "\n" +
+			"Content-Type: " + request.getContentType() + "\n" +
+			"Query: " + request.getQuery() + "\n" +
+			"Filename: " + request.getFilename() + "\n" +
+			"Extension: " + request.getExtension() + "\n" +
+			"Path: " + request.getPath() + "\n" +
+			"Body: " + request.getBody() ;
 
 		Response response = Response::Builder()
 			.setProtocolVersion("HTTP/1.1")
@@ -60,9 +70,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 				"</html>"
 			)
 			.build();
-
-		std::cout << "Sending response to FD: " << clientFd << std::endl;
-		std::cout << "Response: " << response.getResponse() << std::endl;
 		
 		sendResponse(clientFd, response.getResponse());
 		return 0;
@@ -102,3 +109,7 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 	return 1;
 }
 
+void Server::closeConnection(int clientFd) {
+	close(clientFd);
+	this->connections_.removeConnection(clientFd);
+}

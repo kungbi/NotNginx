@@ -27,7 +27,7 @@ public:
 	int getSocketFd() const;
 	int acceptClient();
 	int handleRequest(int clientFd);
-	int parseRequestHeader();
+	void closeConnection(int clientFd);
 };
 
 
