@@ -13,10 +13,10 @@ struct UriComponents {
 };
 
 class RequestParser {
-    public:
-        void parseRequestHeader(Request* request);
-        static UriComponents parseUri(const std::string& target);
-        void processHeader(Request* request, const std::string& header);
+public:
+    static Request parseRequestHeader(const std::string originalRequest);
+    static void processHeader(const std::string& header, std::string& host, int& port, std::string& connection, size_t& contentLength, std::string& accept);
+    static UriComponents parseUri(const std::string& target);
 };
 
 #endif
