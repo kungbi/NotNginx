@@ -25,7 +25,8 @@ int main(void) {
 							 "Connection: keep-alive\r\n"
 							 "Content-Length: 0\r\n"
 							 "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\n"
-							 "\r\n";
+							 "\r\n"
+							 "Hello World";
 	testRequest(getRequest);
 
 	std::string postRequest = "POST /index.html?name=foo&age=20 HTTP/1.1\r\n"

@@ -1,5 +1,16 @@
 #include "Server.hpp"
-#include "Request.hpp"
+
+std::string requestTypeToString(RequestType type) {
+    switch (type) {
+        case GET: return "GET";
+        case POST: return "POST";
+        case PUT: return "PUT";
+        case PATCH: return "PATCH";
+        case DELETE: return "DELETE";
+        default: return "UNKNOWN";
+    }
+}
+
 
 Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue)
 	: serverSocket_(serverSocket), serverConfig_(serverConfig), kqueue_(kqueue) {
@@ -24,6 +35,15 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 	this->connections_.appendRequestData(clientFd, buffer, bytesRead);
 
 	if (this->connections_.hasRequest(clientFd)) {
+		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
+
+		// 요청 처리 로직
+		std::string requestDetails = 
+			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
+			"Target: " + request.getTarget() + "\n" +
+			"Version: " + request.getProtocolVersion() + "\n" +
+			"Body: " + request.getBody();
+
 		Response response = Response::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
@@ -34,11 +54,15 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			.setBody(
 				"<html>\n" 
 				"<body>\n" 
-					"<h1>Welcome to our website</h1>\n" 
+					"<h1>Welcome to our website</h1>\n"
+					"<pre>" + requestDetails + "</pre>\n"
 				"</body>\n" 
 				"</html>"
 			)
 			.build();
+
+		std::cout << "Sending response to FD: " << clientFd << std::endl;
+		std::cout << "Response: " << response.getResponse() << std::endl;
 		
 		sendResponse(clientFd, response.getResponse());
 		return 0;
@@ -77,5 +101,4 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 	close(clientFd); // 소켓 닫기
 	return 1;
 }
-
 

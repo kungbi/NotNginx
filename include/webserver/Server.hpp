@@ -7,6 +7,8 @@
 # include "ServerConfig.hpp"
 # include "Kqueue.hpp"
 # include "Connections.hpp"
+# include "Request.hpp"
+# include "RequestParser.hpp"
 
 class Server {
 private:
