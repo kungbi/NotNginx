@@ -14,7 +14,8 @@ Request::Request(
 	const std::string& connection,
 	size_t contentLength,
 	const std::string& accept,
-	const std::string& body
+	const std::string& body,
+	const std::string& contentType
 ) : requestType_(requestType),
 	protocolVersion_(protocolVersion),
 	host_(host),
@@ -27,7 +28,8 @@ Request::Request(
 	connection_(connection),
 	contentLength_(contentLength),
 	accept_(accept),
-	body_(body) {}
+	body_(body),
+	contentType_(contentType) {}
 
 RequestType Request::getRequestType() const {
 	return requestType_;
@@ -79,4 +81,8 @@ std::string Request::getPath() const {
 
 std::string Request::getBody() const {
 	return body_;
+}
+
+std::string Request::getContentType() const {
+	return contentType_;
 }

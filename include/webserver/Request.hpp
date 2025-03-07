@@ -29,8 +29,8 @@ private:
 	std::string connection_;
 	size_t contentLength_;
 	std::string accept_;
-
 	std::string body_;
+	std::string contentType_; // Add this member variable
 
 	Request();
 
@@ -48,7 +48,8 @@ public:
 		const std::string& connection,
 		size_t contentLength,
 		const std::string& accept,
-		const std::string& body
+		const std::string& body,
+		const std::string& contentType
 	);
 
 	const std::string& getOriginalRequest() const;
@@ -65,6 +66,7 @@ public:
 	std::string getExtension() const;
 	std::string getPath() const;
 	std::string getBody() const;
+	std::string getContentType() const; 
 };
 
 #endif

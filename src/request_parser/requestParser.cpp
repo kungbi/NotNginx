@@ -68,7 +68,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 
 	// Request 객체 생성 및 반환
 	RequestType requestType = (method == "GET") ? GET : (method == "POST") ? POST : (method == "PUT") ? PUT : (method == "PATCH") ? PATCH : DELETE;
-	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, "");
+	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, "", "");
 
 	return request;
 }
