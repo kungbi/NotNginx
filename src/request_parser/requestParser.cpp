@@ -31,7 +31,7 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 	UriComponents uri = RequestParser::parseUri(target);
 
 	// 헤더 파싱을 위한 변수들
-	std::string host, connection, accept;
+	std::string host, connection, accept, contentType;
 	int port = 0;
 	size_t contentLength = 0;
 
@@ -56,25 +56,32 @@ Request RequestParser::parseRequestHeader(const std::string originalRequest)
 
 		// 이전 헤더 처리
 		if (!currentHeader.empty()) {
-			RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept);
+			RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept, contentType);
 		}
 		currentHeader = line;
 	}
 
 	// 마지막 헤더 처리
 	if (!currentHeader.empty()) {
-		RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept);
+		RequestParser::processHeader(currentHeader, host, port, connection, contentLength, accept, contentType);
+	}
+
+	// 3️⃣ 바디 파싱
+	std::string body;
+	if (contentLength > 0) {
+		body.resize(contentLength);
+		stream.read(&body[0], contentLength);
 	}
 
 	// Request 객체 생성 및 반환
 	RequestType requestType = (method == "GET") ? GET : (method == "POST") ? POST : (method == "PUT") ? PUT : (method == "PATCH") ? PATCH : DELETE;
-	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, "", "");
+	Request request(requestType, version, host, target, uri.query, uri.filename, uri.extension, uri.path, port, connection, contentLength, accept, body, contentType);
 
 	return request;
 }
 
 // 새로운 헤더 처리 함수
-void RequestParser::processHeader(const std::string& header, std::string& host, int& port, std::string& connection, size_t& contentLength, std::string& accept) {
+void RequestParser::processHeader(const std::string& header, std::string& host, int& port, std::string& connection, size_t& contentLength, std::string& accept, std::string& contentType) {
 	size_t colonPos = header.find(':');
 	if (colonPos == std::string::npos) {
 		std::cerr << "Warning: Invalid header format: " << header << std::endl;
@@ -104,6 +111,8 @@ void RequestParser::processHeader(const std::string& header, std::string& host, 
 			contentLength = std::stoi(value);
 		} else if (key == "Accept") {
 			accept = value;
+		} else if (key == "Content-Type") {
+			contentType = value;
 		}
 	} catch (const std::exception& e) {
 		std::cerr << "Error processing header '" << key << "': " << e.what() << std::endl;

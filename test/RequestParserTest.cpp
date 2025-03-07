@@ -13,6 +13,7 @@ void testRequest(const std::string& requestStr) {
     std::cout << "Connection: " << request.getConnection() << std::endl;
     std::cout << "Content Length: " << request.getContentLength() << std::endl;
     std::cout << "Accept: " << request.getAccept() << std::endl;
+    std::cout << "Content-Type: " << request.getContentType() << std::endl;
     std::cout << "Query: " << request.getQuery() << std::endl;
     std::cout << "Body: " << request.getBody() << std::endl;
     std::cout << "----------------------------------------" << std::endl;
@@ -53,6 +54,17 @@ int main(void) {
                               "\r\n"
                               "field1=value1&field2=value2";
     testRequest(bodyRequest);
+
+    // New request to test different content types
+    std::string jsonRequest = "POST /api/data HTTP/1.1\r\n"
+                              "Host: localhost:8080\r\n"
+                              "Connection: keep-alive\r\n"
+                              "Content-Length: 18\r\n"
+                              "Accept: application/json\r\n"
+                              "Content-Type: application/json\r\n"
+                              "\r\n"
+                              "{\"key\":\"value\"}";
+    testRequest(jsonRequest);
 
     return 0;
 }
