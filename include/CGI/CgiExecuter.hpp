@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Kqueue.hpp"
-
+#include "CgiHandler.hpp"
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -10,23 +9,26 @@
 #include <fcntl.h>
 #include <sstream>
 
-class CGIexecuter
+class CgiExecuter
 {
 	private:
-		std::string scriptPath_;
-		std::string queryString_;
-		std::string requestMethod_;
-		std::string requestBody_;
+		int outputFd_;
 
 	public:
-		CGIexecuter(
+		CgiExecuter();
+		~CgiExecuter();
+		
+		void executeCgiScript(
 			const std::string& scriptPath,
 			const std::string& queryString,
 			const std::string& requestMethod,
 			const std::string& requestBody
 		);
-		~CGIexecuter();
-		
-		void setEnvVariables();
-		void executeCGIScript(Kqueue& kqueue);
+		void setEnvVariables(
+			const std::string& scriptPath,
+			const std::string& queryString,
+			const std::string& requestMethod,
+			const std::string& requestBody
+		);
+		int getOutputFd() const;
 };
