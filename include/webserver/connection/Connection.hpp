@@ -22,9 +22,9 @@ public:
 	std::string getRequest(void);
 
 	// response handling
-	void addResponse(const Response& response);
+	void addResponse(Response& response);
 	bool hasResponse(void) const;
-	Response getResponse(void);
+	Response* getResponse(void);
 };
 
 #endif

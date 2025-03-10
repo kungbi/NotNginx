@@ -29,7 +29,7 @@ bool Connections::hasRequest(int fd) const {
 	return this->getConnection(fd).hasRequest();
 }
 
-void Connections::addResponse(int fd, const Response& response) {
+void Connections::addResponse(int fd, Response& response) {
 	this->connections_.at(fd)->addResponse(response);
 }
 
@@ -37,7 +37,7 @@ bool Connections::hasResponse(int fd) const {
 	return this->getConnection(fd).hasResponse();
 }
 
-Response Connections::getResponse(int fd) {
+Response* Connections::getResponse(int fd) {
 	return this->connections_.at(fd)->getResponse();
 }
 

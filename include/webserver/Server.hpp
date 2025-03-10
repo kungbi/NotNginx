@@ -9,6 +9,8 @@
 # include "Connections.hpp"
 # include "Request.hpp"
 # include "RequestParser.hpp"
+# include "Response.hpp"
+# include "StaticResourceResponse.hpp"
 
 class Server {
 private:

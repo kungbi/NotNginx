@@ -23,7 +23,7 @@ std::string Connection::getRequest(void) {
 	return request;
 }
 
-void Connection::addResponse(const Response& response) {
+void Connection::addResponse(Response& response) {
 	this->responses_.addResponse(response);
 }
 
@@ -31,7 +31,7 @@ bool Connection::hasResponse(void) const {
 	return this->responses_.hasResponse();
 }
 
-Response Connection::getResponse(void) {
+Response* Connection::getResponse(void) {
 	if (!this->hasResponse()) {
 		throw std::runtime_error("No response available");
 	}

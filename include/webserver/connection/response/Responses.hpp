@@ -5,15 +5,15 @@
 
 class Responses {
 private:
-	std::queue<Response> responses_;
+	std::queue<Response*> responses_;
 
 public:
 	Responses();
 	~Responses();
 
-	void addResponse(const Response& response);
+	void addResponse(Response& response);
 	bool hasResponse() const;
-	Response popResponse();
+	Response* popResponse();
 };
 
 #endif
