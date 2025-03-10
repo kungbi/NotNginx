@@ -2,17 +2,19 @@
 
 #include "Request.hpp"
 #include "Kqueue.hpp"
-#include "CGIExecuter.hpp"
+#include "CgiExecuter.hpp"
 
-class CGIHandler
+class CgiHandler
 {
 	private:
-		const Request& request_;
 		Kqueue& kqueue_;
-	
+		CgiExecuter& cgiExecuter_;
+
 	public:
-		CGIHandler(const Request& request, Kqueue& kqueue);
-		~CGIHandler();
+		CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter);
+		~CgiHandler();
 		
-		void handleRequest();
+		void handleRequest(const Request& request);
 };
+
+std::string requestTypeToString(RequestType type);
