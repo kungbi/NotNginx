@@ -13,10 +13,10 @@
 class CGIexecuter
 {
 	private:
-		std::string& scriptPath_;
-		std::string& queryString_;
-		std::string& requestMethod_;
-		std::string& requestBody_;
+		std::string scriptPath_;
+		std::string queryString_;
+		std::string requestMethod_;
+		std::string requestBody_;
 
 	public:
 		CGIexecuter(
