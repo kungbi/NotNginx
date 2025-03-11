@@ -9,7 +9,9 @@ private:
 	std::string cgiResponse_;
 
 public:
-	std::string getResponse() const;
+	CgiResponse(const std::string& response);
+
+	std::string getResponse();
 };
 
 #endif

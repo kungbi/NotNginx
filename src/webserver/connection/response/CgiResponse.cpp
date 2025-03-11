@@ -1,5 +1,9 @@
 #include "CgiResponse.hpp"
 
-std::string CgiResponse::getResponse() const {
+CgiResponse::CgiResponse(const std::string& response) {
+	cgiResponse_ = response;
+}
+
+std::string CgiResponse::getResponse(void) {
 	return cgiResponse_;
 }

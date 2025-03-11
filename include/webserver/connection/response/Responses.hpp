@@ -2,6 +2,7 @@
 # define RESPONSES_HPP
 
 # include "Response.hpp"
+# include "CgiResponse.hpp"
 
 class Responses {
 private:
