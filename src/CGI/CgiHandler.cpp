@@ -4,7 +4,7 @@ CgiHandler::~CgiHandler() {}
 
 CgiHandler::CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter) : kqueue_(kqueue), cgiExecuter_(cgiExecuter) {}
 
-std::string requestTypeToString(RequestType type) {
+std::string CgiHandler::requestTypeToString(RequestType type) {
     switch (type) {
         case GET: return "GET";
         case POST: return "POST";
@@ -18,10 +18,11 @@ std::string requestTypeToString(RequestType type) {
 void CgiHandler::handleRequest(const Request& request)
 {
     std::string requestMethod = requestTypeToString(request.getRequestType());
-    cgiExecuter_.executeCgiScript(request.getPath(), request.getQuery(), requestMethod, request.getBody());
-    int outputFd = cgiExecuter_.getOutputFd();
-    if (outputFd == -1) {
-        throw std::runtime_error("Invalid output file descriptor from CgiExecuter");
+    int outputFd = cgiExecuter_.executeCgiScript(request.getPath(), request.getQuery(), requestMethod, request.getBody());
+
+    if (outputFd < 0) {
+        throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");
     }
+    
     kqueue_.addEvent(outputFd, KQUEUE_EVENT::RESPONSE, 0);
 }
