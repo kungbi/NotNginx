@@ -22,9 +22,10 @@ public:
 	std::string getRequest(void);
 
 	// response handling
-	void addResponse(const Response& response);
+	void addResponse(Response& response);
 	bool hasResponse(void) const;
-	Response getResponse(void);
+	Response* getResponse(void);
+	void appendCgiBuffer(int pipeFd, const std::string& data, bool isEnd);
 };
 
 #endif

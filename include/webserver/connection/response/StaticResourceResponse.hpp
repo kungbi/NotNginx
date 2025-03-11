@@ -1,11 +1,12 @@
-#ifndef RESPONSE_HPP
-# define RESPONSE_HPP
+#ifndef STATIC_RESOURCE_RESPONSE_HPP
+# define STATIC_RESOURCE_RESPONSE_HPP
 
 # include <string>
 # include <ctime>
 # include <sstream>
+# include "Response.hpp"
 
-class Response {
+class StaticResourceResponse: public Response {
 private:
 	// Status Line
 	std::string protocolVersion_;
@@ -22,8 +23,8 @@ private:
 	// Body
 	std::string body_;
 
-	Response(void);
-	Response(
+	StaticResourceResponse(void);
+	StaticResourceResponse(
 		const std::string& protocolVersion,
 		int statusCode,
 		const std::string& reasonPhrase,
@@ -41,7 +42,7 @@ public:
 	std::string getResponse(void);
 };
 
-class Response::Builder {
+class StaticResourceResponse::Builder {
 private:
 	std::string protocolVersion_;
 	int statusCode_;
@@ -64,7 +65,7 @@ public:
 	Builder& setConnection(const std::string& connection);
 	Builder& setBody(const std::string& body);
 
-	Response build() const;
+	StaticResourceResponse build() const;
 };
 
-#endif // RESPONSE_HPP
+#endif // STATIC_RESOURCE_RESPONSE_HPP
