@@ -9,6 +9,8 @@ class CgiHandler
 	private:
 		Kqueue& kqueue_;
 		CgiExecuter& cgiExecuter_;
+		
+		std::string requestTypeToString(RequestType type);
 
 	public:
 		CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter);
@@ -16,5 +18,3 @@ class CgiHandler
 		
 		void handleRequest(const Request& request);
 };
-
-std::string requestTypeToString(RequestType type);
