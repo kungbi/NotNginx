@@ -19,3 +19,15 @@ Response* Responses::popResponse() {
 	responses_.pop();
 	return response;
 }
+
+void Responses::appendCgiBuffer(int fd, const std::string& data, bool isEnd) {
+	cgiBuffer_.appendBuffer(fd, data);
+
+	if (isEnd) {
+		std::string buffer = cgiBuffer_.popBuffer(fd);
+		if (!buffer.empty()) {
+			Response* response = new CgiResponse(buffer);
+			this->addResponse(*response);
+		}
+	}
+}

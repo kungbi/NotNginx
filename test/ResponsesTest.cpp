@@ -31,19 +31,17 @@ int main() {
 
 	std::cout << "======================" << std::endl;
 	
-	std::cout << "hasResponse: " << responses.hasResponse() << std::endl;
-	responses.appendCgiResponse(
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: 10\r\n"
-		"\r\n"
-		"Hello World"
-	);
-	std::cout << "hasResponse: " << responses.hasResponse() << std::endl;
-	std::cout << responses.popResponse()->getResponse() << std::endl;
-	std::cout << "hasResponse: " << responses.hasResponse() << std::endl;
+	std::cout << responses.hasResponse() << std::endl;
+	std::cout << "appendCgiBuffer" << std::endl;
+	responses.appendCgiBuffer(1, "Hello", false);
 
+	std::cout << responses.hasResponse() << std::endl;
+	std::cout << "appendCgiBuffer (end)" << std::endl;
+	responses.appendCgiBuffer(1, "World", true);
+	std::cout << responses.hasResponse() << std::endl;
 
+	std::cout << "response: " << responses.popResponse()->getResponse() << std::endl;
+	std::cout << responses.hasResponse() << std::endl;
 
 	
 	return 0;
