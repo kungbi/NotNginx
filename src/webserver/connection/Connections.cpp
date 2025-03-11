@@ -46,3 +46,7 @@ Connections::~Connections() {}
 std::string Connections::getRequest(int fd) {
 	return this->connections_.at(fd)->getRequest();
 }
+
+void Connections::appendCgiBuffer(int fd, int pipeFd, const std::string& data, bool isEnd) {
+	this->connections_.at(fd)->appendCgiBuffer(pipeFd, data, isEnd);
+}

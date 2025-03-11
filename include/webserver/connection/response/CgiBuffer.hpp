@@ -5,12 +5,13 @@
 
 class CgiBuffer {
 private:
+	// pipe_fd -> buffer
 	std::map<int, std::string> buffer_;
 
 public:
-	void appendBuffer(int fd, const std::string& data);
-	std::string popBuffer(int fd);
-	bool hasBuffer(int fd);
+	void appendBuffer(int pipeFd, const std::string& data);
+	std::string popBuffer(int pipeFd);
+	bool hasBuffer(int pipeFd);
 };
 
 #endif

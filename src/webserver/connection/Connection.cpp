@@ -38,3 +38,7 @@ Response* Connection::getResponse(void) {
 
 	return this->responses_.popResponse();
 }
+
+void Connection::appendCgiBuffer(int pipeFd, const std::string& data, bool isEnd) {
+	this->responses_.appendCgiBuffer(pipeFd, data, isEnd);
+}

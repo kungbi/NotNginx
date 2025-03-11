@@ -25,6 +25,7 @@ public:
 	void addResponse(Response& response);
 	bool hasResponse(void) const;
 	Response* getResponse(void);
+	void appendCgiBuffer(int pipeFd, const std::string& data, bool isEnd);
 };
 
 #endif
