@@ -4,13 +4,11 @@ CXXFLAGS = -Wall -Wextra -std=c++98
 
 # 디렉토리 설정
 SRC_DIR = src
-INC_DIR = -Iinclude -Iinclude/webserver -Iinclude/config -Iinclude/config_parser \
-			-Iinclude/config_parser -Iinclude/config_adapter -Iinclude/request_parser \
-			-Iinclude/CGI
+INC_DIR = $(shell find include -type d -exec echo -I{} \;)
 BUILD_DIR = build
 
 # 소스 파일 및 객체 파일 설정
-SRCS = $(wildcard $(SRC_DIR)/**/*.cpp $(SRC_DIR)/*.cpp)
+SRCS = $(shell find $(SRC_DIR) -name '*.cpp')
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
 
 # 실행 파일 이름

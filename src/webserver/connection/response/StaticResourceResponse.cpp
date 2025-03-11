@@ -1,6 +1,6 @@
-#include "Response.hpp"
+#include "StaticResourceResponse.hpp"
 
-Response::Response(
+StaticResourceResponse::StaticResourceResponse(
 	const std::string& protocolVersion,
 	int statusCode,
 	const std::string& reasonPhrase,
@@ -20,7 +20,7 @@ Response::Response(
 	connection_(connection),
 	body_(body) {}
 
-std::string Response::getResponse(void) {
+std::string StaticResourceResponse::getResponse(void) {
 	std::ostringstream oss;
 
 	// Status Line
@@ -39,44 +39,44 @@ std::string Response::getResponse(void) {
 	return oss.str();
 }
 
-Response::Builder::Builder(void) : protocolVersion_(""), statusCode_(0), reasonPhrase_(""), server_(""), contentType_(""), connection_(""), body_("") {}
+StaticResourceResponse::Builder::Builder(void) : protocolVersion_(""), statusCode_(0), reasonPhrase_(""), server_(""), contentType_(""), connection_(""), body_("") {}
 
-Response::Builder& Response::Builder::setProtocolVersion(const std::string& protocolVersion) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setProtocolVersion(const std::string& protocolVersion) {
 	protocolVersion_ = protocolVersion;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setStatusCode(int statusCode) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setStatusCode(int statusCode) {
 	statusCode_ = statusCode;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setReasonPhrase(const std::string& reasonPhrase) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setReasonPhrase(const std::string& reasonPhrase) {
 	reasonPhrase_ = reasonPhrase;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setServer(const std::string& server) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setServer(const std::string& server) {
 	server_ = server;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setContentType(const std::string& contentType) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setContentType(const std::string& contentType) {
 	contentType_ = contentType;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setConnection(const std::string& connection) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setConnection(const std::string& connection) {
 	connection_ = connection;
 	return *this;
 }
 
-Response::Builder& Response::Builder::setBody(const std::string& body) {
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setBody(const std::string& body) {
 	body_ = body;
 	return *this;
 }
 
-void Response::Builder::validate(void) const {
+void StaticResourceResponse::Builder::validate(void) const {
 	if (protocolVersion_.empty()) 
 		throw std::invalid_argument("Protocol version must not be empty");
 	if (statusCode_ == 0) 
@@ -93,7 +93,7 @@ void Response::Builder::validate(void) const {
 		throw std::invalid_argument("Body must not be empty");
 }
 
-Response Response::Builder::build() const {
+StaticResourceResponse StaticResourceResponse::Builder::build() const {
 	this->validate();
 
 	std::time_t now = std::time(nullptr);
@@ -101,5 +101,5 @@ Response Response::Builder::build() const {
 
 	size_t contentLength = body_.size();
 
-	return Response(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, body_);
+	return StaticResourceResponse(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, body_);
 }

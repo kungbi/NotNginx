@@ -54,7 +54,7 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			"Path: " + request.getPath() + "\n" +
 			"Body: " + request.getBody() ;
 
-		Response response = Response::Builder()
+		StaticResourceResponse response = StaticResourceResponse::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
 			.setReasonPhrase("OK")
