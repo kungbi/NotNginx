@@ -17,7 +17,6 @@ struct CgiRequestData {
 
 	CgiRequestData() {}
 
-	// 구조체에 생성자 추가 (초기화 편의성 제공)
 	CgiRequestData(const std::string& script, const std::string& query, const std::string& method, const std::string& body)
 		: scriptPath(script), queryString(query), requestMethod(method), requestBody(body) {}
 };
