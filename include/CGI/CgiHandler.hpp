@@ -16,5 +16,5 @@ class CgiHandler
 		CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter);
 		~CgiHandler();
 		
-		void handleRequest(const Request& request);
+		void handleRequest(const Request& request, int clientFd);
 };
