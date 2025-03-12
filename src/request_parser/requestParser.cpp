@@ -47,6 +47,8 @@ HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 	HeaderResult result;
 	std::string line;
 
+	memset(&result, 0, sizeof(HeaderResult));
+
 	while (std::getline(stream, line)) {
 		if (!line.empty() && line.back() == '\r') {
 			line.pop_back();
@@ -74,6 +76,8 @@ HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 		} else if (key == "Connection") {
 			result.connection = value;
 		} else if (key == "Content-Length") {
+			std::cout << "contentLength: " << value << std::endl;
+			std::cout << "contentLength: " << std::stoi(value) << std::endl;
 			result.contentLength = std::stoi(value);
 		} else if (key == "Accept") {
 			result.accept = value;
@@ -85,6 +89,7 @@ HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 }
 
 std::string RequestParser::parseBody(std::istringstream& stream, size_t contentLength) {
+	std::cout << "contentLength: " << contentLength << std::endl;
 	if (contentLength == 0) return "";
 
 	std::string body(contentLength, '\0');

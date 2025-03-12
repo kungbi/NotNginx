@@ -1,6 +1,7 @@
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
 
+# include <iostream>
 # include <string>
 # include <queue>
 # include "Responses.hpp"
@@ -15,6 +16,7 @@ private:
 
 public:
 	Connection(int fd);
+	~Connection(void);
 
 	// request handling
 	void appendRequestData(const char* data, size_t length);

@@ -4,6 +4,10 @@ Responses::Responses() {
 }
 
 Responses::~Responses() {
+	while (!responses_.empty()) {
+		delete responses_.front();
+		responses_.pop();
+	}
 }
 
 void Responses::addResponse(Response& response) {

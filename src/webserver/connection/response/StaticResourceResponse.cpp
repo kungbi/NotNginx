@@ -1,5 +1,7 @@
 #include "StaticResourceResponse.hpp"
 
+StaticResourceResponse::~StaticResourceResponse(void) {}
+
 StaticResourceResponse::StaticResourceResponse(
 	const std::string& protocolVersion,
 	int statusCode,

@@ -27,7 +27,6 @@ int Server::acceptClient() {
 
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
-
 	if (!this->connections_.hasConnection(clientFd)) {
 		this->connections_.addConnection(clientFd);
 	}
@@ -36,7 +35,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-
 		// 요청 처리 로직
 		std::string requestDetails = 
 			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
@@ -54,6 +52,8 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			"Path: " + request.getPath() + "\n" +
 			"Body: " + request.getBody() ;
 
+		std::cout << "requestDetails: " << requestDetails << std::endl;
+
 		StaticResourceResponse response = StaticResourceResponse::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
@@ -70,10 +70,14 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 				"</html>"
 			)
 			.build();
+
+		std::cout << "Response: " << response.getResponse() << std::endl;
 		
 		sendResponse(clientFd, response.getResponse());
 		return 0;
 	}
+
+	std::cout << "No request yet" << std::endl;
 
 	return 2;
 }
