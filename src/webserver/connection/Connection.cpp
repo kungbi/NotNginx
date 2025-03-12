@@ -9,7 +9,14 @@ Connection::Connection(int fd): fd_(fd) {
 }
 
 void Connection::appendRequestData(const char* data, size_t length) {
-	std::cout << "original request: " << this->originalRequest_ << std::endl;
+	// std::cout << "original request: " << this->originalRequest_ << std::endl;
+	size_t i = 0;
+	while (data[i] != '\0' && i < length) {
+		std::cout << data[i] << " " << int(data[i]) << " " << "i: " << i << std::endl;
+		
+		i++;
+	}
+	std::cout << "---------------------------" << std::endl;
 	this->originalRequest_.append(data, length);
 }
 
