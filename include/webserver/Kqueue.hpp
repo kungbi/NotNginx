@@ -11,7 +11,8 @@ namespace KQUEUE_EVENT {
 	enum TYPE {
 		SERVER,
 		REQUEST,
-		RESPONSE
+		RESPONSE,
+		CGI_RESPONSE
 	};
 }
 
