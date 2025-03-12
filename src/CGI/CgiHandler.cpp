@@ -11,35 +11,18 @@ std::string CgiHandler::requestTypeToString(RequestType type) {
         case PUT: return "PUT";
         case PATCH: return "PATCH";
         case DELETE: return "DELETE";
-        default: return "UNKNOWN";
+        default:
+            throw std::invalid_argument("Invalid RequestType encountered in requestTypeToString");
     }
 }
 
-// 클라이언트 정보를 포함한 이벤트 등록 버전
-void CgiHandler::handleRequest(const Request& request, int clientFd)
-{
+void CgiHandler::handleRequest(const Request& request, int clientFd) {
     std::string requestMethod = requestTypeToString(request.getRequestType());
 
-    int outputFd = cgiExecuter_.executeCgiScript(
-        request.getPath(), request.getQuery(), requestMethod, request.getBody()
-    );
+    int outputFd = cgiExecuter_.executeCgiScript(request.getPath(), request.getQuery(), requestMethod, request.getBody());
 
     if (outputFd < 0) {
         throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");
     }
-    // 클라이언트 정보와 함께 이벤트 등록
     kqueue_.addEvent(outputFd, KQUEUE_EVENT::CGI_RESPONSE, clientFd);
 }
-
-// // 이전 버전
-// void CgiHandler::handleRequest(const Request& request)
-// {
-//     std::string requestMethod = requestTypeToString(request.getRequestType());
-//     int outputFd = cgiExecuter_.executeCgiScript(request.getPath(), request.getQuery(), requestMethod, request.getBody());
-
-//     if (outputFd < 0) {
-//         throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");
-//     }
-    
-//     kqueue_.addEvent(outputFd, KQUEUE_EVENT::RESPONSE, 0);
-// }
