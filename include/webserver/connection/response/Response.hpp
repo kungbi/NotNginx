@@ -7,6 +7,7 @@
 
 class Response {
 public:
+	virtual ~Response(void) {}
 	virtual std::string getResponse(void) = 0;
 };
 

@@ -39,6 +39,7 @@ private:
 public:
 	class Builder;
 
+	~StaticResourceResponse(void);
 	std::string getResponse(void);
 };
 

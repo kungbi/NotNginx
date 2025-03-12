@@ -1,5 +1,7 @@
 #include "Connections.hpp"
 
+#include <iostream>
+
 Connections::Connections() {}
 
 void Connections::appendRequestData(int fd, const char* data, size_t length) {
@@ -14,6 +16,7 @@ void Connections::addConnection(int fd) {
 }
 
 void Connections::removeConnection(int fd) {
+	delete this->connections_.at(fd);
 	this->connections_.erase(fd);
 }
 
@@ -41,7 +44,13 @@ Response* Connections::getResponse(int fd) {
 	return this->connections_.at(fd)->getResponse();
 }
 
-Connections::~Connections() {}
+Connections::~Connections() {
+	std::map<int, Connection*>::iterator it;
+	for (it = connections_.begin(); it != connections_.end(); ++it) {
+		delete it->second;
+	}
+	connections_.clear();
+}
 
 std::string Connections::getRequest(int fd) {
 	return this->connections_.at(fd)->getRequest();

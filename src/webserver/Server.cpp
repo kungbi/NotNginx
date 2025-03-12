@@ -27,7 +27,8 @@ int Server::acceptClient() {
 
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
-
+	std::cout << "Bytes read: " << bytesRead << std::endl;
+	
 	if (!this->connections_.hasConnection(clientFd)) {
 		this->connections_.addConnection(clientFd);
 	}

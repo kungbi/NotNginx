@@ -50,6 +50,12 @@ void Webserver::start() {
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
 		processEvents(*event); // 이벤트 처리
+		int count = 0, i = 0;
+		while (event[i].ident != 0) {
+			count++;
+			i++;
+		}
+		std::cout << "count: " << count << std::endl;
 		std::cout << "================" << std::endl;
 
 		delete[] event; // 메모리 해제
