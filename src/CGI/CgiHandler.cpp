@@ -2,7 +2,7 @@
 
 CgiHandler::~CgiHandler() {}
 
-CgiHandler::CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter) : kqueue_(kqueue), cgiExecuter_(cgiExecuter) {}
+CgiHandler::CgiHandler(Kqueue& kqueue) : kqueue_(kqueue), cgiExecuter_() {}
 
 std::string CgiHandler::requestTypeToString(RequestType type) {
     switch (type) {
