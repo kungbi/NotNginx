@@ -48,9 +48,10 @@ void Webserver::processEvents(struct kevent& event) {
 
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 		std::cout << "Response event." << std::endl;
-		this->servers_.processResponse(eventInfo->serverFd, fd);
+		if (precessClientResponse(event) == 0) {
+			delete eventInfo;
+		}
 		this->kqueue_.removeEvent(fd, EVFILT_WRITE);
-		// delete eventInfo;
 	}
 
 }
