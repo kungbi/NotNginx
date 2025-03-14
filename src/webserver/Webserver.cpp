@@ -21,6 +21,13 @@ int Webserver::processClientRequest(struct kevent& event) {
 	return servers_.processRequest(serverFd, clientFd);
 }
 
+int Webserver::precessClientResponse(struct kevent& event) {
+	int serverFd = ((EventInfo *) event.udata)->serverFd;
+	int clientFd = event.ident;
+
+	return servers_.processResponse(serverFd, clientFd);
+}
+
 void Webserver::processEvents(struct kevent& event) {
 	int fd = event.ident;
 	EventInfo* eventInfo = (EventInfo *) event.udata;
@@ -40,6 +47,10 @@ void Webserver::processEvents(struct kevent& event) {
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
+		std::cout << "Response event." << std::endl;
+		this->servers_.processResponse(eventInfo->serverFd, fd);
+		this->kqueue_.removeEvent(fd, EVFILT_WRITE);
+		// delete eventInfo;
 	}
 
 }
@@ -50,12 +61,6 @@ void Webserver::start() {
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
 		processEvents(*event); // 이벤트 처리
-		int count = 0, i = 0;
-		while (event[i].ident != 0) {
-			count++;
-			i++;
-		}
-		std::cout << "count: " << count << std::endl;
 		std::cout << "================" << std::endl;
 
 		delete[] event; // 메모리 해제

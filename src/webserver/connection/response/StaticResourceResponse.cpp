@@ -95,7 +95,7 @@ void StaticResourceResponse::Builder::validate(void) const {
 		throw std::invalid_argument("Body must not be empty");
 }
 
-StaticResourceResponse StaticResourceResponse::Builder::build() const {
+StaticResourceResponse* StaticResourceResponse::Builder::build() const {
 	this->validate();
 
 	std::time_t now = std::time(nullptr);
@@ -103,5 +103,5 @@ StaticResourceResponse StaticResourceResponse::Builder::build() const {
 
 	size_t contentLength = body_.size();
 
-	return StaticResourceResponse(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, body_);
+	return new StaticResourceResponse(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, body_);
 }

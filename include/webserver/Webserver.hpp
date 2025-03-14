@@ -18,6 +18,7 @@ private:
 	void processEvents(struct kevent& event);
 	void connectClient(struct kevent& event);
 	int processClientRequest(struct kevent& event);
+	int precessClientResponse(struct kevent& event);
 
 	Webserver(void);
 
