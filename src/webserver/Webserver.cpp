@@ -51,7 +51,6 @@ void Webserver::processEvents(struct kevent& event) {
 		if (precessClientResponse(event) == 0) {
 			delete eventInfo;
 		}
-		this->kqueue_.removeEvent(fd, EVFILT_WRITE);
 	}
 
 }

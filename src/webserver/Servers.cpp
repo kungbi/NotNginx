@@ -95,5 +95,7 @@ int Servers::processResponse(int serverFd, int clientFd) {
 		throw std::runtime_error("No server found for client FD");
 	}
 
-	return server->handleResponse(clientFd);
+	server->handleResponse(clientFd);
+	server->closeConnection(clientFd);
+	return 0;
 }
