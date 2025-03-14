@@ -10,7 +10,7 @@
 class RequestHandler {
 private:
     Router router_;
-    CgiHandler cgiHandler_;   // ✅ `CgiHandler` 추가
+    CgiHandler cgiHandler_;
     // StaticResourceHandler staticHandler_;
 
 public:
