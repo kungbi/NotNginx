@@ -52,9 +52,7 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			"Path: " + request.getPath() + "\n" +
 			"Body: " + request.getBody() ;
 
-		std::cout << "requestDetails: " << requestDetails << std::endl;
-
-		StaticResourceResponse response = StaticResourceResponse::Builder()
+		StaticResourceResponse* response = StaticResourceResponse::Builder()
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(200)
 			.setReasonPhrase("OK")
@@ -70,10 +68,10 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 				"</html>"
 			)
 			.build();
-
-		std::cout << "Response: " << response.getResponse() << std::endl;
-		
-		sendResponse(clientFd, response.getResponse());
+		this->connections_.addResponse(clientFd, *response);
+		this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
+		std::cout << "Response added for client FD: " << clientFd << std::endl;
+		// sendResponse(clientFd, response.getResponse());
 		return 0;
 	}
 
@@ -92,7 +90,6 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 	// 클라이언트 요청 처리
 	char buffer[1025];
 	ssize_t bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-	std::cout << "Bytes read: " << bytesRead << std::endl;
 
 	if (bytesRead > 0) {
 		buffer[bytesRead] = '\0'; // Null-terminate for safety
@@ -102,15 +99,25 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 	if (bytesRead == 0) {
 		// 클라이언트가 연결을 닫은 경우
 		std::cout << "Client disconnected on FD: " << clientFd << std::endl;
-		// kqueue.removeEvent(fd, EVFILT_READ); // Kqueue에서 제거
 		close(clientFd); // 소켓 닫기
 		return 1;
 	}
 	
 	perror("Error reading from FD");
-	// kqueue.removeEvent(clientFd, EVFILT_READ); // Kqueue에서 제거
 	close(clientFd); // 소켓 닫기
 	return 1;
+}
+
+int Server::handleResponse(int clientFd) {
+	std::cout << "Handling response for client FD: " << clientFd << std::endl;
+	if (!this->connections_.hasResponse(clientFd)) {
+		std::cout << "No response found for client FD: " << clientFd << std::endl;
+		throw std::runtime_error("No response found for client FD");
+	}
+
+	Response* response = this->connections_.getResponse(clientFd);
+	sendResponse(clientFd, response->getResponse());
+	return 0;
 }
 
 void Server::closeConnection(int clientFd) {
