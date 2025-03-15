@@ -18,13 +18,6 @@ struct PathInfo {
 
 
 class Router {
-public:
-    Router(ServerConfig& serverConfig);
-    ~Router();
-
-    PathInfo convertPath(const std::string& path, bool isCgi);
-    void printRoutes();
-    
 private:
     typedef std::pair<std::string, LocationConfig> RoutePair;
     std::map<std::string, LocationConfig> routes_;
@@ -33,6 +26,14 @@ private:
     void sortRoutes();
     void addRoute(const std::string& pattern, const LocationConfig& location);
     static bool compareRouteLength(const RoutePair& a, const RoutePair& b);
+
+public:
+    Router(ServerConfig& serverConfig);
+    ~Router();
+
+    PathInfo convertPath(const std::string& path, bool isCgi);
+    void printRoutes();
+    
 };
 
 #endif // ROUTER_HPP
