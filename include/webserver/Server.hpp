@@ -29,6 +29,7 @@ public:
 	int getSocketFd() const;
 	int acceptClient();
 	int handleRequest(int clientFd);
+	int handleResponse(int clientFd);
 	void closeConnection(int clientFd);
 };
 

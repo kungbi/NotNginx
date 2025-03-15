@@ -20,7 +20,6 @@ bool Servers::isServerSocketFd(int fd) {
 	std::cout << "Checking for FD: " << fd << std::endl;
 
 	for (size_t i = 0; i < servers_.size(); ++i) {
-		std::cout << "Server FD: " << servers_[i]->getSocketFd() << std::endl;
 		if (servers_[i]->getSocketFd() == fd) {
 			return true;
 		}
@@ -31,8 +30,8 @@ bool Servers::isServerSocketFd(int fd) {
 Server* Servers::getServerForSocketFd(int fd) {
 	std::cout << "Getting server for FD: " << fd << std::endl;
 	for (size_t i = 0; i < servers_.size(); ++i) {
-		std::cout << "Server FD: " << servers_[i]->getSocketFd() << std::endl;
 		if (servers_[i]->getSocketFd() == fd) {
+			std::cout << "Get Server FD: " << servers_[i]->getSocketFd() << std::endl;
 			return servers_[i];
 		}
 	}
@@ -84,8 +83,19 @@ int Servers::processRequest(int serverFd, int clientFd) {
 	std::cout << "Result: " << result << std::endl;
 	if (result == 0) {
 		kqueue_.removeEvent(clientFd, EVFILT_READ);
-		server->closeConnection(clientFd);
+		// server->closeConnection(clientFd);
 	}
 
 	return result;
+}
+
+int Servers::processResponse(int serverFd, int clientFd) {
+	Server* server = getServerForSocketFd(serverFd);
+	if (!server) {
+		throw std::runtime_error("No server found for client FD");
+	}
+
+	server->handleResponse(clientFd);
+	server->closeConnection(clientFd);
+	return 0;
 }

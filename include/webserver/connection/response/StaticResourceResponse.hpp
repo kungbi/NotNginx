@@ -66,7 +66,7 @@ public:
 	Builder& setConnection(const std::string& connection);
 	Builder& setBody(const std::string& body);
 
-	StaticResourceResponse build() const;
+	StaticResourceResponse* build() const;
 };
 
 #endif // STATIC_RESOURCE_RESPONSE_HPP
