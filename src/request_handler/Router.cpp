@@ -1,4 +1,4 @@
-#include "../../include/request_handler/Router.hpp"
+#include "Router.hpp"
 
 Router::Router(const std::string& configFile) {
     loadConfigRoute(configFile);
