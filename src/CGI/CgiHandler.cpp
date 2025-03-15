@@ -2,7 +2,7 @@
 
 CgiHandler::~CgiHandler() {}
 
-CgiHandler::CgiHandler(Kqueue& kqueue, CgiExecuter& cgiExecuter) : kqueue_(kqueue), cgiExecuter_(cgiExecuter) {}
+CgiHandler::CgiHandler(Kqueue& kqueue) : kqueue_(kqueue), cgiExecuter_() {}
 
 std::string CgiHandler::requestTypeToString(RequestType type) {
     switch (type) {
@@ -16,7 +16,7 @@ std::string CgiHandler::requestTypeToString(RequestType type) {
     }
 }
 
-void CgiHandler::handleRequest(const Request& request, int clientFd) {
+void CgiHandler::handleCgiRequest(const Request& request, int clientFd) {
     std::string requestMethod = requestTypeToString(request.getRequestType());
 
     int outputFd = cgiExecuter_.executeCgiScript(request.getPath(), request.getQuery(), requestMethod, request.getBody());

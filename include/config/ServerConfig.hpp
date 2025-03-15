@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <string>
 #include "LocationConfig.hpp"
 
 class ServerConfig {
@@ -13,10 +12,8 @@ private:
 	int port;
 	std::string serverName;
 	size_t clientMaxBodySize;
-
 	std::map<int, std::string> errorPages;
 	std::vector<LocationConfig> locations;
-
 	bool isDefault;
 
 	ServerConfig(void);
@@ -36,6 +33,7 @@ public:
 	int getPort() const;
 	std::string getServerName() const;
 	size_t getClientMaxBodySize() const;
+	const std::vector<LocationConfig>& getLocations() const;
 };
 
 #endif

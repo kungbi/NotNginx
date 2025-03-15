@@ -21,3 +21,15 @@ LocationConfig::LocationConfig(
 bool LocationConfig::isAutoindex() const {
 	return autoindex;
 }
+
+std::string LocationConfig::getPattern() const {
+    return pattern;
+}
+
+std::string LocationConfig::getRoot() const {
+    return root;
+}
+
+std::string LocationConfig::getCgiInterpreter() const {
+    return cgiInterpreter;
+}
