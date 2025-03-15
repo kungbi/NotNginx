@@ -40,6 +40,5 @@ PathInfo Router::convertPath(const std::string& path, bool isCgi) {
             return PathInfo(scriptPath, "");
         }
     }
-    return PathInfo("UNKNOWN", "");
+    throw std::runtime_error("Error: No route found for path: " + path);
 }
-
