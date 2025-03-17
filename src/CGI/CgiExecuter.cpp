@@ -6,7 +6,7 @@ CgiExecuter::CgiExecuter() {
 
 CgiExecuter::~CgiExecuter() {}
 
-int CgiExecuter::executeCgiScript(
+int CgiExecuter::runl(
     const std::string& scriptPath,
     const std::string& queryString,
     const std::string& requestMethod,

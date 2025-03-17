@@ -15,5 +15,5 @@ public:
     CgiHandler(Kqueue& kqueue);
     ~CgiHandler();
 
-    void handleCgiRequest(const Request& request, int clientFd);
+    void processCgiRequest(const Request& request, int clientFd, std::string cgiScriptPath);
 };

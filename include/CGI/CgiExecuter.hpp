@@ -35,7 +35,7 @@ public:
 	CgiExecuter();
 	~CgiExecuter();
 
-	int executeCgiScript(
+	int runl(
 		const std::string& scriptPath,
 		const std::string& queryString,
 		const std::string& requestMethod,
