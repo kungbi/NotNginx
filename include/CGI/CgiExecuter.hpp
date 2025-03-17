@@ -8,17 +8,18 @@
 #include <fcntl.h>
 #include <sstream>
 #include <signal.h>
+#include "Router.hpp"
 
 struct CgiRequestData {
-	std::string scriptPath;
+	PathInfo pathInfo;
 	std::string queryString;
 	std::string requestMethod;
 	std::string requestBody;
 
 	CgiRequestData() {}
 
-	CgiRequestData(const std::string& script, const std::string& query, const std::string& method, const std::string& body)
-		: scriptPath(script), queryString(query), requestMethod(method), requestBody(body) {}
+	CgiRequestData(PathInfo pathInfo, const std::string& query, const std::string& method, const std::string& body)
+		: pathInfo(pathInfo) ,queryString(query), requestMethod(method), requestBody(body) {}
 };
 
 class CgiExecuter {
@@ -35,8 +36,8 @@ public:
 	CgiExecuter();
 	~CgiExecuter();
 
-	int runl(
-		const std::string& scriptPath,
+	int run(
+		PathInfo pathInfo,
 		const std::string& queryString,
 		const std::string& requestMethod,
 		const std::string& requestBody

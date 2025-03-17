@@ -3,6 +3,7 @@
 #include "Request.hpp"
 #include "Kqueue.hpp"
 #include "CgiExecuter.hpp"
+#include "Router.hpp"
 
 class CgiHandler {
 private:
@@ -15,5 +16,5 @@ public:
     CgiHandler(Kqueue& kqueue);
     ~CgiHandler();
 
-    void processCgiRequest(const Request& request, int clientFd, std::string cgiScriptPath);
+    void processCgiRequest(const Request& request, int clientFd, PathInfo pathInfo);
 };
