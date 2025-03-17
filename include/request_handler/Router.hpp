@@ -13,6 +13,8 @@ struct PathInfo {
     std::string scriptPath;
     std::string interpreter;
 
+    PathInfo() {}
+
     PathInfo(const std::string& script, const std::string& interpreter) : scriptPath(script), interpreter(interpreter) {}
 };
 
