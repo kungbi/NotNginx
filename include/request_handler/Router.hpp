@@ -30,10 +30,11 @@ private:
     static bool compareRouteLength(const RoutePair& a, const RoutePair& b);
 
 public:
+    Router();
     Router(ServerConfig& serverConfig);
     ~Router();
 
-    PathInfo convertPath(const std::string& path, bool isCgi);
+    PathInfo convertPath(const std::string& path, const std::string& fileName);
     void printRoutes();
     
 };
