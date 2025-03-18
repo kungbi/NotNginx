@@ -26,6 +26,7 @@ public:
 		const std::string cgiInterpreter
 	);
 
+	LocationConfig();
 	bool isAutoindex() const;
 	std::string getPattern() const;
 	std::string getRoot() const;
