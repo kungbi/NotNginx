@@ -47,7 +47,7 @@ void Router::printRoutes() {
     }
 }
 
-PathInfo Router::convertPath(const std::string& path, const std::string& fileName) {
+RouteResult Router::convertPath(const std::string& path, const std::string& fileName) {
     bool isPy = (fileName.rfind(".py") != std::string::npos);
 
     // CGI 라우트 처리
@@ -63,7 +63,7 @@ PathInfo Router::convertPath(const std::string& path, const std::string& fileNam
             combinedPath += fileName;
         }
         std::string scriptPath = routes_[".py"].root + combinedPath;
-        return PathInfo(scriptPath, routes_[".py"].cgiInterpreter);
+        return RouteResult(scriptPath, routes_[".py"].cgiInterpreter);
     }
     // 정적 라우트 처리
     for (size_t i = 0; i < sortedRoutes_.size(); i++) {
@@ -77,7 +77,7 @@ PathInfo Router::convertPath(const std::string& path, const std::string& fileNam
             if (!fileName.empty()) {
                 scriptPath += "/" + fileName;
             }
-            return PathInfo(scriptPath, "");
+            return RouteResult(scriptPath, "");
         }
     }
     throw std::runtime_error("Error: No route found for path: " + path);

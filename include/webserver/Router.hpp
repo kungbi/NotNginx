@@ -9,12 +9,12 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 
-struct PathInfo {
+struct RouteResult {
     std::string scriptPath;
     std::string interpreter;
 
-    PathInfo() {}
-    PathInfo(const std::string& script, const std::string& interp)
+    RouteResult() {}
+    RouteResult(const std::string& script, const std::string& interp)
         : scriptPath(script), interpreter(interp) {}
 };
 
@@ -44,7 +44,7 @@ public:
     Router(ServerConfig& serverConfig);
     ~Router();
 
-    PathInfo convertPath(const std::string& path, const std::string& fileName);
+    RouteResult convertPath(const std::string& path, const std::string& fileName);
     void printRoutes();
 };
 
