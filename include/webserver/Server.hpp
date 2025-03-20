@@ -11,7 +11,6 @@
 # include "RequestParser.hpp"
 # include "Response.hpp"
 # include "StaticResourceResponse.hpp"
-# include "RequestHandler.hpp"
 # include "Router.hpp"
 
 class Server {
