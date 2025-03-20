@@ -1,7 +1,5 @@
 #include "LocationConfig.hpp"
 
-LocationConfig::LocationConfig() {}
-
 LocationConfig::LocationConfig(
     const std::string pattern,
     const std::string root,	
