@@ -55,3 +55,7 @@ std::string ServerConfig::getServerName() const {
 size_t ServerConfig::getClientMaxBodySize() const {
 	return clientMaxBodySize;
 }
+
+const std::vector<LocationConfig>& ServerConfig::getLocations() const {
+    return locations;
+}

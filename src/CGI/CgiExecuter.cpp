@@ -6,13 +6,8 @@ CgiExecuter::CgiExecuter() {
 
 CgiExecuter::~CgiExecuter() {}
 
-int CgiExecuter::executeCgiScript(
-    const std::string& scriptPath,
-    const std::string& queryString,
-    const std::string& requestMethod,
-    const std::string& requestBody
-) {
-    CgiRequestData requestData(scriptPath, queryString, requestMethod, requestBody);
+int CgiExecuter::run(PathInfo pathInfo, const std::string& queryString, const std::string& requestMethod, const std::string& requestBody) {
+    CgiRequestData requestData(pathInfo, queryString, requestMethod, requestBody);
     
     int pipefd[2];
     if (pipe(pipefd) == -1)
@@ -41,13 +36,13 @@ void CgiExecuter::executeChild(int pipefd[2], const CgiRequestData& requestData)
         setupBodyPipe(requestData.requestBody);
     }
     
-    execlp("python3", "python3", requestData.scriptPath.c_str(), NULL);
+    execlp(requestData.pathInfo.interpreter.c_str(), requestData.pathInfo.interpreter.c_str(), requestData.pathInfo.scriptPath.c_str(), NULL);
     perror("execlp");
     exit(1);
 }
 
 void CgiExecuter::setEnvVariables(const CgiRequestData& requestData) {
-    setenv("PATH_INFO", requestData.scriptPath.c_str(), 1);
+    setenv("PATH_INFO", requestData.pathInfo.scriptPath.c_str(), 1);
     setenv("QUERY_STRING", requestData.queryString.c_str(), 1);
     setenv("REQUEST_METHOD", requestData.requestMethod.c_str(), 1);
     

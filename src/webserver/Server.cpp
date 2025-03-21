@@ -11,9 +11,8 @@ std::string requestTypeToString(RequestType type) {
     }
 }
 
-
 Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue)
-	: serverSocket_(serverSocket), serverConfig_(serverConfig), kqueue_(kqueue) {
+	: serverSocket_(serverSocket), serverConfig_(serverConfig), kqueue_(kqueue), router_(serverConfig) {
 	std::cout << "Server initialized at " << serverConfig.getServerName() << ":" << serverConfig.getPort() << std::endl;
 }
 

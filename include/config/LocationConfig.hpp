@@ -27,6 +27,9 @@ public:
 	);
 
 	bool isAutoindex() const;
+	std::string getPattern() const;
+	std::string getRoot() const;
+	std::string getCgiInterpreter() const;
 };
 
 #endif // LOCATIONCONFIG_HPP
