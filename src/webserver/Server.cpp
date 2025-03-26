@@ -1,18 +1,23 @@
 #include "Server.hpp"
 
 std::string requestTypeToString(RequestType type) {
-    switch (type) {
-        case GET: return "GET";
-        case POST: return "POST";
-        case PUT: return "PUT";
-        case PATCH: return "PATCH";
-        case DELETE: return "DELETE";
-        default: return "UNKNOWN";
-    }
+	switch (type) {
+		case GET: return "GET";
+		case POST: return "POST";
+		case PUT: return "PUT";
+		case PATCH: return "PATCH";
+		case DELETE: return "DELETE";
+		default: return "UNKNOWN";
+	}
 }
 
 Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue)
-	: serverSocket_(serverSocket), serverConfig_(serverConfig), kqueue_(kqueue), router_(serverConfig) {
+	: serverSocket_(serverSocket),
+	  serverConfig_(serverConfig),
+	  kqueue_(kqueue),
+	  router_(serverConfig),
+	  cgiHandler_(kqueue),
+	  requestHandler_(router_, cgiHandler_) {
 	std::cout << "Server initialized at " << serverConfig.getServerName() << ":" << serverConfig.getPort() << std::endl;
 }
 
@@ -34,43 +39,12 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-		// 요청 처리 로직
-		std::string requestDetails = 
-			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
-			"Target: " + request.getTarget() + "\n" +
-			"Version: " + request.getProtocolVersion() + "\n" +
-			"Host: " + request.getHost() + "\n" +
-			"Port: " + std::to_string(request.getPort()) + "\n" +
-			"Connection: " + request.getConnection() + "\n" +
-			"Content-Length: " + std::to_string(request.getContentLength()) + "\n" +
-			"Accept: " + request.getAccept() + "\n" +
-			"Content-Type: " + request.getContentType() + "\n" +
-			"Query: " + request.getQuery() + "\n" +
-			"Filename: " + request.getFilename() + "\n" +
-			"Extension: " + request.getExtension() + "\n" +
-			"Path: " + request.getPath() + "\n" +
-			"Body: " + request.getBody() ;
-
-		StaticResourceResponse* response = StaticResourceResponse::Builder()
-			.setProtocolVersion("HTTP/1.1")
-			.setStatusCode(200)
-			.setReasonPhrase("OK")
-			.setServer("Server")
-			.setContentType("text/html")
-			.setConnection("close")
-			.setBody(
-				"<html>\n" 
-				"<body>\n" 
-					"<h1>Welcome to our website</h1>\n"
-					"<pre>" + requestDetails + "</pre>\n"
-				"</body>\n" 
-				"</html>"
-			)
-			.build();
-		this->connections_.addResponse(clientFd, *response);
-		this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
-		std::cout << "Response added for client FD: " << clientFd << std::endl;
-		// sendResponse(clientFd, response.getResponse());
+		Response* response = requestHandler_.dispatch(request, clientFd);
+		if (response != NULL) {
+			this->connections_.addResponse(clientFd, *response);
+			this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
+			std::cout << "Response added for client FD: " << clientFd << std::endl;
+		}	
 		return 0;
 	}
 
