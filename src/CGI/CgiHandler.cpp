@@ -16,10 +16,10 @@ std::string CgiHandler::requestTypeToString(RequestType type) {
     }
 }
 
-void CgiHandler::processCgiRequest(const Request& request, int clientFd, PathInfo pathInfo) {
+void CgiHandler::processCgiRequest(const Request& request, int clientFd, RouteResult routeResult) {
     std::string requestMethod = requestTypeToString(request.getRequestType());
 
-    int outputFd = cgiExecuter_.run(pathInfo, request.getQuery(), requestMethod, request.getBody());
+    int outputFd = cgiExecuter_.run(routeResult, request.getQuery(), requestMethod, request.getBody());
 
     if (outputFd < 0) {
         throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");

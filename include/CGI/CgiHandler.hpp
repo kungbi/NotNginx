@@ -16,5 +16,5 @@ public:
     CgiHandler(Kqueue& kqueue);
     ~CgiHandler();
 
-    void processCgiRequest(const Request& request, int clientFd, PathInfo pathInfo);
+    void processCgiRequest(const Request& request, int clientFd, RouteResult routeResult);
 };
