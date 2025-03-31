@@ -6,11 +6,6 @@ RequestHandler::~RequestHandler() {}
 
 Response* RequestHandler::dispatch(const Request& request) {
 	RouteResult routeResult = router_.routeRequest(request);
-	std::cout << "Route result type: " << routeResult.type << std::endl;
-	std::cout << "Route result file path: " << routeResult.filePath << std::endl;
-	std::cout << "Route result CGI interpreter: " << routeResult.cgiInterpreter << std::endl;
-	std::cout << "Route result file extension: " << routeResult.fileExtension << std::endl;
-
 
 	if (routeResult.type == CGI_RESOURCE) {
 		// cgi request

@@ -27,6 +27,9 @@ private:
 	Server(void);
 	int processClientData(int clientFd, const char* buffer, ssize_t bytesRead);
 	void sendResponse(int clientFd, const std::string& response);
+	std::string resolveErrorFile(int errorCode);
+	std::string readErrorFile(const std::string& filePath);
+	void sendErrorResponse(int clientFd, int errorCode, const std::string& response);
 
 public:
 	Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue, RequestHandler& requestHandler);

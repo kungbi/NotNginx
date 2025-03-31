@@ -37,22 +37,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-		std::string requestDetails = 
-			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
-			"Target: " + request.getTarget() + "\n" +
-			"Version: " + request.getProtocolVersion() + "\n" +
-			"Host: " + request.getHost() + "\n" +
-			"Port: " + std::to_string(request.getPort()) + "\n" +
-			"Connection: " + request.getConnection() + "\n" +
-			"Content-Length: " + std::to_string(request.getContentLength()) + "\n" +
-			"Accept: " + request.getAccept() + "\n" +
-			"Content-Type: " + request.getContentType() + "\n" +
-			"Query: " + request.getQuery() + "\n" +
-			"Filename: " + request.getFilename() + "\n" +
-			"Extension: " + request.getExtension() + "\n" +
-			"Path: " + request.getPath() + "\n" +
-			"Body: " + request.getBody() ;
-		std::cout << "requestDetails: " << requestDetails << std::endl;
 		Response* response = requestHandler_.dispatch(request);
 		if (response != NULL) {
 			this->connections_.addResponse(clientFd, *response);
@@ -113,52 +97,52 @@ void Server::closeConnection(int clientFd) {
 }
 
 void Server::handleError(int clientFd, int errorCode) {
-	std::cout << "Handling error for client FD: " << clientFd << std::endl;
-	std::cout << "serverPort: " << serverConfig_.getPort() << std::endl;
-	std::cout << "serverFd: " << serverSocket_.getSocketFd() << std::endl;
-	std::cout << "errorCode: " << errorCode << std::endl;
+	std::string resolvedErrorFile = resolveErrorFile(errorCode);
+	if (resolvedErrorFile.empty()) {
+		throw std::runtime_error("No matching location found for error file.");
+	}
 
+	std::string response = readErrorFile(resolvedErrorFile);
+	if (response.empty()) {
+		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
+		closeConnection(clientFd);
+		return;
+	}
+
+	sendErrorResponse(clientFd, errorCode, response);
+	closeConnection(clientFd);
+}
+
+std::string Server::resolveErrorFile(int errorCode) {
 	const std::map<int, std::string>& errorPages = serverConfig_.getErrorPages();
 	if (errorPages.find(errorCode) == errorPages.end()) {
 		throw std::runtime_error("Error page not found for error code: " + std::to_string(errorCode));
 	}
 
 	std::string errorFile = errorPages.at(errorCode);
-	std::cout << "Error file (from config): " << errorFile << std::endl;
-
-	// Find the LocationConfig that matches the errorFile path
 	const std::vector<LocationConfig>& locations = serverConfig_.getLocations();
-	std::string resolvedErrorFile;
 	for (size_t i = 0; i < locations.size(); ++i) {
 		const LocationConfig& location = locations[i];
-		if (errorFile.find(location.getPattern()) == 0) { // Match pattern
+		if (errorFile.find(location.getPattern()) == 0) {
 			std::string relativePath = errorFile.substr(location.getPattern().size());
 			if (!relativePath.empty() && relativePath[0] == '/') {
-				relativePath = relativePath.substr(1); // Remove leading slash
+				relativePath = relativePath.substr(1);
 			}
-			resolvedErrorFile = location.getRoot() + "/" + relativePath;
-			break;
+			return location.getRoot() + "/" + relativePath;
 		}
 	}
+	return "";
+}
 
-	if (resolvedErrorFile.empty()) {
-		throw std::runtime_error("No matching location found for error file: " + errorFile);
-	}
-
-	std::cout << "Resolved error file path: " << resolvedErrorFile << std::endl;
-
-	// Read the error file
-	std::ifstream file(resolvedErrorFile);
+std::string Server::readErrorFile(const std::string& filePath) {
+	std::ifstream file(filePath);
 	if (!file.is_open()) {
-		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
-		closeConnection(clientFd);
-		return;
+		return "";
 	}
+	return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+}
 
-	std::string response((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	file.close();
-
-	// Send the error response
+void Server::sendErrorResponse(int clientFd, int errorCode, const std::string& response) {
 	std::string httpResponse = 
 		"HTTP/1.1 " + std::to_string(errorCode) + " Error\r\n" +
 		"Content-Length: " + std::to_string(response.size()) + "\r\n" +
@@ -166,5 +150,4 @@ void Server::handleError(int clientFd, int errorCode) {
 		response;
 
 	sendResponse(clientFd, httpResponse);
-	closeConnection(clientFd);
 }

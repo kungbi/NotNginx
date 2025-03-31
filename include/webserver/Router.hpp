@@ -9,48 +9,42 @@
 #include "ServerConfig.hpp"
 #include "Request.hpp"
 
-// Enum to represent the type of route
 enum RouteType {
-    STATIC_RESOURCE,
-    CGI_RESOURCE
+	STATIC_RESOURCE,
+	CGI_RESOURCE
 };
 
-// Structure to store the result of routing
 struct RouteResult {
-    RouteType type;             // Type of the route (STATIC_RESOURCE or CGI_RESOURCE)
-    std::string filePath;       // Path to the file (CGI script or static resource)
-    std::string cgiInterpreter; // Path to the CGI interpreter (if applicable)
-    std::string fileExtension;  // File extension (if applicable)
+	RouteType type;
+	std::string filePath;
+	std::string cgiInterpreter;
+	std::string fileExtension;
 
-    RouteResult(RouteType routeType, const std::string& path, const std::string& interpreter = "", const std::string& extension = "")
-        : type(routeType), filePath(path), cgiInterpreter(interpreter), fileExtension(extension) {}
+	RouteResult(RouteType routeType, const std::string& path, const std::string& interpreter = "", const std::string& extension = "")
+		: type(routeType), filePath(path), cgiInterpreter(interpreter), fileExtension(extension) {}
 };
 
 class Router {
 private:
-    typedef std::pair<std::string, LocationConfig> LocationPair;
+	typedef std::pair<std::string, LocationConfig> LocationPair;
 
-    // Member variables
-    std::vector<LocationPair> sortedLocations_;
+	std::vector<LocationPair> sortedLocations_;
 
-    // Helper functions
-    void sortLocations();
-    static bool compareLocationLength(const LocationPair& a, const LocationPair& b);
-    bool isPatternMatch(const std::string& target, const std::string& pattern) const;
-    std::string calculateRelativePath(const std::string& target, const std::string& pattern) const;
-    std::string buildFilePath(const LocationConfig& location, const std::string& relativePath, const std::string& fileName) const;
-    RouteResult createRouteResult(const LocationConfig& location, const std::string& filePath, const std::string& fileExtension) const; // Updated signature
-    std::string getIndexFile(const LocationConfig& location) const;
-    bool fileExists(const std::string& path) const;
-    std::string extractFileExtension(const std::string& fileName) const;
+	void sortLocations();
+	static bool compareLength(const LocationPair& a, const LocationPair& b);
+	bool matchPattern(const std::string& target, const std::string& pattern) const;
+	std::string getRelativePath(const std::string& target, const std::string& pattern) const;
+	std::string getFilePath(const LocationConfig& location, const std::string& relativePath, const std::string& fileName) const;
+	RouteResult createResult(const LocationConfig& location, const std::string& filePath, const std::string& fileExtension) const;
+	std::string getIndex(const LocationConfig& location) const;
+	bool exists(const std::string& path) const;
+	std::string getExtension(const std::string& fileName) const;
 
 public:
-    // Constructor
-    Router(const ServerConfig& serverConfig);
-    ~Router();
+	Router(const ServerConfig& serverConfig);
+	~Router();
 
-    // Public method to handle routing
-    RouteResult routeRequest(const Request& request) const;
+	RouteResult routeRequest(const Request& request) const;
 };
 
-#endif // ROUTER_HPP
+#endif

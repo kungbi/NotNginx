@@ -18,8 +18,6 @@ ServerConfig::ServerConfig(
 	  locations(locations),
 	  defaultServer_(defaultServer) // Updated initialization
 {
-	std::cout << "ServerConfig constructed: " << serverName << ":" << port << std::endl;
-
 	if (host.empty()) {
 		throw std::invalid_argument("Host is empty");
 	}

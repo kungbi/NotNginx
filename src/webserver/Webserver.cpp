@@ -57,39 +57,19 @@ void Webserver::processEvents(struct kevent& event) {
 }
 
 void Webserver::start() {
-	std::cout << "Webserver started." << std::endl;
-
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
 		int fd = event->ident;
 		EventInfo* eventInfo = (EventInfo *) event->udata;
 
-		std::cout << "Event identified for FD: " << fd << std::endl;
-		std::cout << "Event type: " << eventInfo->type << std::endl;
-
 		try {
 			processEvents(*event);
 		} catch (const HttpException& e) {
-			std::cerr << "HttpException: " << e.what() << std::endl;
 			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
-			server->handleError(fd, e.getStatusCode());
+
+				server->handleError(fd, e.getStatusCode());
 		}
 
 		delete[] event;
 	}
-}
-
-void Webserver::sendErrorResponse(int statusCode, const std::string& errorFile) {
-	std::ifstream file(errorFile);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open error file: " << errorFile << std::endl;
-		return;
-	}
-
-	std::string response((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	file.close();
-
-	// Logic to send the response to the client
-	std::cout << "Sending error response (" << statusCode << "): " << errorFile << std::endl;
-	// ...send response to client...
 }
