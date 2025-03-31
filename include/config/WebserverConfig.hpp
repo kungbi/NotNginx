@@ -18,8 +18,6 @@ public:
 	WebserverConfig(const HTTPConfig& httpConfig);
 
 	HTTPConfig& getHTTPConfig() const;
-
-	void printConfig() const;
 };
 
 #endif // WEBSERVERCONFIG_HPP
