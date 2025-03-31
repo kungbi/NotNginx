@@ -8,6 +8,7 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 #include "Request.hpp"
+#include "HttpExceptions.hpp"
 
 enum RouteType {
 	STATIC_RESOURCE,

@@ -36,6 +36,50 @@ public:
 	}
 };
 
+// Derived exception for 403 Forbidden
+class ForbiddenError : public HttpException {
+public:
+	explicit ForbiddenError(const std::string& message)
+		: HttpException(message) {}
+
+	int getStatusCode() const {
+		return 403;
+	}
+};
+
+// Derived exception for 500 Internal Server Error
+class InternalServerError : public HttpException {
+public:
+	explicit InternalServerError(const std::string& message)
+		: HttpException(message) {}
+
+	int getStatusCode() const {
+		return 500;
+	}
+};
+
+// Derived exception for 401 Unauthorized
+class UnauthorizedError : public HttpException {
+public:
+	explicit UnauthorizedError(const std::string& message)
+		: HttpException(message) {}
+
+	int getStatusCode() const {
+		return 401;
+	}
+};
+
+// Derived exception for 405 Method Not Allowed
+class MethodNotAllowedError : public HttpException {
+public:
+	explicit MethodNotAllowedError(const std::string& message)
+		: HttpException(message) {}
+
+	int getStatusCode() const {
+		return 405;
+	}
+};
+
 // Add more custom exceptions as needed, inheriting from HttpException
 
 #endif // HTTP_EXCEPTIONS_HPP

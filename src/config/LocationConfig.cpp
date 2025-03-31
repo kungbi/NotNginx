@@ -43,3 +43,7 @@ const std::vector<std::string>& LocationConfig::getIndex() const {
 std::string LocationConfig::getPath() const {
     return path;
 }
+
+bool LocationConfig::isAutoindexEnabled() const {
+	return autoindex;
+}

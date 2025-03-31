@@ -34,6 +34,7 @@ public:
 	std::string getCgiInterpreter() const;
 	const std::vector<std::string>& getIndex() const;
 	std::string getPath() const;
+	bool isAutoindexEnabled() const;
 };
 
 #endif // LOCATIONCONFIG_HPP

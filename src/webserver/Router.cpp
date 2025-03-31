@@ -103,6 +103,11 @@ RouteResult Router::routeRequest(const Request& request) const {
 					break;
 				}
 			}
+			std::cout << "Resolved file name: " << resolvedFileName << std::endl;
+			std::cout << "is autoindex enabled: " << location.isAutoindexEnabled() << std::endl;
+			if (resolvedFileName.empty() && !location.isAutoindexEnabled()) {
+				throw ForbiddenError("Error: No index file found and autoindex is disabled.");
+			}
 		} else {
 			fileExtension = getExtension(fileName);
 		}
