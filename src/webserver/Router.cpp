@@ -73,6 +73,11 @@ RouteResult Router::routeRequest(const Request& request) const {
 	const std::string& target = request.getTarget();
 	const std::string& fileName = request.getFilename();
 
+	// Check if the target path exists
+	if (!exists(target)) {
+		throw NotFoundError("Error: Target path does not exist: " + target);
+	}
+
 	for (size_t i = 0; i < sortedLocations_.size(); i++) {
 		const std::string& pattern = sortedLocations_[i].first;
 		const LocationConfig& location = sortedLocations_[i].second;
@@ -103,8 +108,6 @@ RouteResult Router::routeRequest(const Request& request) const {
 					break;
 				}
 			}
-			std::cout << "Resolved file name: " << resolvedFileName << std::endl;
-			std::cout << "is autoindex enabled: " << location.isAutoindexEnabled() << std::endl;
 			if (resolvedFileName.empty() && !location.isAutoindexEnabled()) {
 				throw ForbiddenError("Error: No index file found and autoindex is disabled.");
 			}

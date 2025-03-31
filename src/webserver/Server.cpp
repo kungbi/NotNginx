@@ -116,7 +116,7 @@ void Server::handleError(int clientFd, int errorCode) {
 std::string Server::resolveErrorFile(int errorCode) {
 	const std::map<int, std::string>& errorPages = serverConfig_.getErrorPages();
 	if (errorPages.find(errorCode) == errorPages.end()) {
-		throw std::runtime_error("Error page not found for error code: " + std::to_string(errorCode));
+		throw NotFoundError("Error page not found errorpage");
 	}
 
 	std::string errorFile = errorPages.at(errorCode);

@@ -65,9 +65,10 @@ void Webserver::start() {
 		try {
 			processEvents(*event);
 		} catch (const HttpException& e) {
+			std::cerr << "HTTP Exception: " << e.what() << std::endl;
+			std::cerr << "Status Code: " << e.getStatusCode() << std::endl;
 			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
-
-				server->handleError(fd, e.getStatusCode());
+			server->handleError(fd, e.getStatusCode());
 		}
 
 		delete[] event;

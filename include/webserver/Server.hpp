@@ -15,6 +15,7 @@
 # include "CgiHandler.hpp"
 # include "StaticResourceHandler.hpp"
 # include "RequestHandler.hpp"
+# include "HttpExceptions.hpp"
 
 class Server {
 private:
