@@ -4,15 +4,18 @@ Servers::Servers(Kqueue& kqueue): kqueue_(kqueue) {}
 
 Servers::~Servers() {
 	for (size_t i = 0; i < servers_.size(); ++i) {
-		delete servers_[i]; // 서버 객체 삭제
+		delete servers_[i]; // Ensure all dynamically allocated servers are freed
 	}
+	servers_.clear();
 }
 
 Server* Servers::createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler) {
+	std::cout << "Creating server for: " << config.getServerName() << ":" << config.getPort() << std::endl;
 	return new Server(socket, config, kqueue, requestHandler);
 }
 
 void Servers::addServer(Server &server) {
+	std::cout << "Adding server with FD: " << server.getSocketFd() << std::endl;
 	servers_.push_back(&server);
 }
 
@@ -35,18 +38,8 @@ Server* Servers::getServerForSocketFd(int fd) {
 			return servers_[i];
 		}
 	}
+	std::cerr << "No server found for FD: " << fd << std::endl;
 	return nullptr;
-}
-
-void Servers::handleRequest(int fd) {
-	const char* response = 
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Length: 12\r\n"
-		"Connection: close\r\n"
-		"\r\n"
-		"Hello World\n";
-
-	write(fd, response, strlen(response));
 }
 
 size_t Servers::size() const {

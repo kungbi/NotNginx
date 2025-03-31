@@ -111,3 +111,60 @@ void Server::closeConnection(int clientFd) {
 	close(clientFd);
 	this->connections_.removeConnection(clientFd);
 }
+
+void Server::handleError(int clientFd, int errorCode) {
+	std::cout << "Handling error for client FD: " << clientFd << std::endl;
+	std::cout << "serverPort: " << serverConfig_.getPort() << std::endl;
+	std::cout << "serverFd: " << serverSocket_.getSocketFd() << std::endl;
+	std::cout << "errorCode: " << errorCode << std::endl;
+
+	const std::map<int, std::string>& errorPages = serverConfig_.getErrorPages();
+	if (errorPages.find(errorCode) == errorPages.end()) {
+		throw std::runtime_error("Error page not found for error code: " + std::to_string(errorCode));
+	}
+
+	std::string errorFile = errorPages.at(errorCode);
+	std::cout << "Error file (from config): " << errorFile << std::endl;
+
+	// Find the LocationConfig that matches the errorFile path
+	const std::vector<LocationConfig>& locations = serverConfig_.getLocations();
+	std::string resolvedErrorFile;
+	for (size_t i = 0; i < locations.size(); ++i) {
+		const LocationConfig& location = locations[i];
+		if (errorFile.find(location.getPattern()) == 0) { // Match pattern
+			std::string relativePath = errorFile.substr(location.getPattern().size());
+			if (!relativePath.empty() && relativePath[0] == '/') {
+				relativePath = relativePath.substr(1); // Remove leading slash
+			}
+			resolvedErrorFile = location.getRoot() + "/" + relativePath;
+			break;
+		}
+	}
+
+	if (resolvedErrorFile.empty()) {
+		throw std::runtime_error("No matching location found for error file: " + errorFile);
+	}
+
+	std::cout << "Resolved error file path: " << resolvedErrorFile << std::endl;
+
+	// Read the error file
+	std::ifstream file(resolvedErrorFile);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
+		closeConnection(clientFd);
+		return;
+	}
+
+	std::string response((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+
+	// Send the error response
+	std::string httpResponse = 
+		"HTTP/1.1 " + std::to_string(errorCode) + " Error\r\n" +
+		"Content-Length: " + std::to_string(response.size()) + "\r\n" +
+		"Connection: close\r\n\r\n" +
+		response;
+
+	sendResponse(clientFd, httpResponse);
+	closeConnection(clientFd);
+}

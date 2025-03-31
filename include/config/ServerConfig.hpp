@@ -14,7 +14,7 @@ private:
 	size_t clientMaxBodySize;
 	std::map<int, std::string> errorPages;
 	std::vector<LocationConfig> locations;
-	bool isDefault;
+	bool defaultServer_; // Renamed from isDefault
 
 	ServerConfig(void);
 
@@ -26,7 +26,7 @@ public:
 		const size_t clientMaxBodySize,
 		const std::map<int, std::string>& errorPages,
 		const std::vector<LocationConfig>& locations,
-		const bool isDefault
+		const bool defaultServer // Updated parameter name
 	);
 
 	std::string getHost() const;
@@ -34,6 +34,8 @@ public:
 	std::string getServerName() const;
 	size_t getClientMaxBodySize() const;
 	const std::vector<LocationConfig>& getLocations() const;
+	const std::map<int, std::string>& getErrorPages() const;
+	bool isDefault() const; // Getter for defaultServer_
 };
 
 #endif

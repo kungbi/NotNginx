@@ -6,7 +6,7 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 	std::cout << "fileExtension: " << fileExtension << std::endl;
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		throw std::runtime_error("Failed to open file");
+		throw NotFoundError("File not found");
 	}
 
 	std::string body, line;

@@ -24,7 +24,6 @@ public:
 	void addServer(Server &server);
 	bool isServerSocketFd(int fd);
 	Server* getServerForSocketFd(int fd);
-	void handleRequest(int fd);
 	size_t size() const;
 	Server& getServer(size_t index);
 

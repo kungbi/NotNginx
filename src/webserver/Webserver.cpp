@@ -1,4 +1,6 @@
 #include "Webserver.hpp"
+#include <fstream>
+#include "HttpExceptions.hpp" // Include the custom exceptions header
 
 Webserver::Webserver(Kqueue& kqueue, Servers& servers, WebserverConfig& config)
 	: kqueue_(kqueue), servers_(servers), config_(config) {}
@@ -52,20 +54,42 @@ void Webserver::processEvents(struct kevent& event) {
 			delete eventInfo;
 		}
 	}
-
 }
 
 void Webserver::start() {
-	std::cout << "Webserver started." << std::endl << std::endl;
+	std::cout << "Webserver started." << std::endl;
 
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
+		int fd = event->ident;
+		EventInfo* eventInfo = (EventInfo *) event->udata;
+
+		std::cout << "Event identified for FD: " << fd << std::endl;
+		std::cout << "Event type: " << eventInfo->type << std::endl;
+
 		try {
-			processEvents(*event); // 이벤트 처리
-		} catch (const std::exception& e) {
-			std::cerr << "Error: " << e.what() << std::endl;
+			processEvents(*event);
+		} catch (const HttpException& e) {
+			std::cerr << "HttpException: " << e.what() << std::endl;
+			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
+			server->handleError(fd, e.getStatusCode());
 		}
 
-		delete[] event; // 메모리 해제
+		delete[] event;
 	}
+}
+
+void Webserver::sendErrorResponse(int statusCode, const std::string& errorFile) {
+	std::ifstream file(errorFile);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open error file: " << errorFile << std::endl;
+		return;
+	}
+
+	std::string response((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+
+	// Logic to send the response to the client
+	std::cout << "Sending error response (" << statusCode << "): " << errorFile << std::endl;
+	// ...send response to client...
 }

@@ -35,6 +35,7 @@ public:
 	int handleRequest(int clientFd);
 	int handleResponse(int clientFd);
 	void closeConnection(int clientFd);
+	void handleError(int clientFd, int errorCode);
 };
 
 #endif

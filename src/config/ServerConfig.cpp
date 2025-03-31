@@ -1,15 +1,14 @@
 #include "ServerConfig.hpp"
+#include <iostream>
 
 ServerConfig::ServerConfig(
 	const std::string host,
 	const int port,
 	const std::string serverName,
 	const size_t clientMaxBodySize, // (mb)
-
 	const std::map<int, std::string>& errorPages,
 	const std::vector<LocationConfig>& locations,
-
-	const bool isDefault
+	const bool defaultServer // Updated parameter name
 )
 	: host(host),
 	  port(port),
@@ -17,8 +16,10 @@ ServerConfig::ServerConfig(
 	  clientMaxBodySize(clientMaxBodySize),
 	  errorPages(errorPages),
 	  locations(locations),
-	  isDefault(isDefault)
+	  defaultServer_(defaultServer) // Updated initialization
 {
+	std::cout << "ServerConfig constructed: " << serverName << ":" << port << std::endl;
+
 	if (host.empty()) {
 		throw std::invalid_argument("Host is empty");
 	}
@@ -32,7 +33,7 @@ ServerConfig::ServerConfig(
 	}
 
 	if (clientMaxBodySize < 1) {
-		throw std::invalid_argument("Invalid clientMaxNodySize");
+		throw std::invalid_argument("Invalid clientMaxBodySize");
 	}
 
 	if (locations.empty()) {
@@ -58,4 +59,12 @@ size_t ServerConfig::getClientMaxBodySize() const {
 
 const std::vector<LocationConfig>& ServerConfig::getLocations() const {
     return locations;
+}
+
+const std::map<int, std::string>& ServerConfig::getErrorPages() const {
+	return errorPages;
+}
+
+bool ServerConfig::isDefault() const {
+	return defaultServer_; // Updated to return the renamed member variable
 }

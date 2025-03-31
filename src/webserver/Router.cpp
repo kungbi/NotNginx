@@ -84,6 +84,8 @@ RouteResult Router::routeRequest(const Request& request) const {
     const std::string& target = request.getTarget();
     const std::string& fileName = request.getFilename();
 
+    std::cout << "Routing request for target: " << target << ", fileName: " << fileName << std::endl;
+
     for (size_t i = 0; i < sortedLocations_.size(); i++) {
         const std::string& pattern = sortedLocations_[i].first;
         const LocationConfig& location = sortedLocations_[i].second;
@@ -92,7 +94,10 @@ RouteResult Router::routeRequest(const Request& request) const {
             continue; // 패턴이 매칭되지 않으면 다음으로 넘어감
         }
 
+        std::cout << "Matched pattern: " << pattern << std::endl;
+
         std::string relativePath = calculateRelativePath(target, pattern);
+        std::cout << "Calculated relativePath: " << relativePath << std::endl;
 
         // Ensure relativePath does not include fileName
         if (!fileName.empty() && relativePath.size() >= fileName.size() &&
@@ -103,6 +108,8 @@ RouteResult Router::routeRequest(const Request& request) const {
             }
         }
 
+        std::cout << "Adjusted relativePath: " << relativePath << std::endl;
+
         // index 파일을 확인
         std::string resolvedFileName = fileName;
         std::string fileExtension;
@@ -110,6 +117,7 @@ RouteResult Router::routeRequest(const Request& request) const {
             const std::vector<std::string>& indices = location.getIndex();
             for (size_t j = 0; j < indices.size(); j++) {
                 std::string potentialFilePath = buildFilePath(location, relativePath, indices[j]);
+                std::cout << "Checking index file: " << potentialFilePath << std::endl;
                 if (fileExists(potentialFilePath)) {
                     resolvedFileName = indices[j];
                     fileExtension = extractFileExtension(resolvedFileName); // 확장자 추출
@@ -122,6 +130,7 @@ RouteResult Router::routeRequest(const Request& request) const {
 
         // 파일 경로를 생성
         std::string filePath = buildFilePath(location, relativePath, resolvedFileName);
+        std::cout << "Built filePath: " << filePath << std::endl;
 
         // resolvedFileName이 비어 있지 않으면 항상 파일 경로에 포함
         if (!resolvedFileName.empty()) {
