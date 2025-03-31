@@ -30,6 +30,7 @@ public:
 	std::string getPattern() const;
 	std::string getRoot() const;
 	std::string getCgiInterpreter() const;
+	const std::vector<std::string>& getIndex() const; // Added function declaration
 };
 
 #endif // LOCATIONCONFIG_HPP

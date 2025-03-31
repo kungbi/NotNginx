@@ -7,6 +7,7 @@
 # include <string>
 # include "Server.hpp"
 # include "Kqueue.hpp"
+# include "RequestHandler.hpp"
 
 class Servers {
 private:
@@ -19,7 +20,7 @@ public:
 	Servers(Kqueue& kqueue);
 	~Servers();
 
-	Server* createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue);
+	Server* createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler);
 	void addServer(Server &server);
 	bool isServerSocketFd(int fd);
 	Server* getServerForSocketFd(int fd);

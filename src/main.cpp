@@ -7,6 +7,7 @@
 #include "ConfigReader.hpp"
 #include "ConfigParser.hpp"
 #include "ConfigAdapter.hpp"
+#include "RequestHandler.hpp"
 
 WebserverConfig* initializeConfig(std::string configPath)
 {
@@ -42,7 +43,9 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 	for (std::vector<ServerConfig>::const_iterator it = config->getHTTPConfig().getServers().begin(); it != config->getHTTPConfig().getServers().end(); ++it) {
 		ServerConfig serverConfig = *it;
 		Socket* serverSocket = new Socket(serverConfig.getHost(), serverConfig.getPort());
-		Server* server = servers->createServer(*serverSocket, serverConfig, *kqueue);
+		Router* router = new Router(serverConfig);
+		RequestHandler* requestHandler = new RequestHandler(*router);
+		Server* server = servers->createServer(*serverSocket, serverConfig, *kqueue, *requestHandler);
 
 		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);

@@ -8,8 +8,8 @@ Servers::~Servers() {
 	}
 }
 
-Server* Servers::createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue) {
-	return new Server(socket, config, kqueue);
+Server* Servers::createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler) {
+	return new Server(socket, config, kqueue, requestHandler);
 }
 
 void Servers::addServer(Server &server) {

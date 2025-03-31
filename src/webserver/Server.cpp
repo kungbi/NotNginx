@@ -11,13 +11,11 @@ std::string requestTypeToString(RequestType type) {
 	}
 }
 
-Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue)
+Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue, RequestHandler& requestHandler)
 	: serverSocket_(serverSocket),
 	  serverConfig_(serverConfig),
 	  kqueue_(kqueue),
-	  router_(serverConfig),
-	  cgiHandler_(kqueue),
-	  requestHandler_(router_, cgiHandler_) {
+	  requestHandler_(requestHandler) {
 	std::cout << "Server initialized at " << serverConfig.getServerName() << ":" << serverConfig.getPort() << std::endl;
 }
 
@@ -39,7 +37,23 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-		Response* response = requestHandler_.dispatch(request, clientFd);
+		std::string requestDetails = 
+			"Method: " + requestTypeToString(request.getRequestType()) + "\n" +
+			"Target: " + request.getTarget() + "\n" +
+			"Version: " + request.getProtocolVersion() + "\n" +
+			"Host: " + request.getHost() + "\n" +
+			"Port: " + std::to_string(request.getPort()) + "\n" +
+			"Connection: " + request.getConnection() + "\n" +
+			"Content-Length: " + std::to_string(request.getContentLength()) + "\n" +
+			"Accept: " + request.getAccept() + "\n" +
+			"Content-Type: " + request.getContentType() + "\n" +
+			"Query: " + request.getQuery() + "\n" +
+			"Filename: " + request.getFilename() + "\n" +
+			"Extension: " + request.getExtension() + "\n" +
+			"Path: " + request.getPath() + "\n" +
+			"Body: " + request.getBody() ;
+		std::cout << "requestDetails: " << requestDetails << std::endl;
+		Response* response = requestHandler_.dispatch(request);
 		if (response != NULL) {
 			this->connections_.addResponse(clientFd, *response);
 			this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());

@@ -22,16 +22,14 @@ private:
 	ServerConfig& serverConfig_;
 	Kqueue& kqueue_;
 	Connections connections_;
-	Router router_;
-	CgiHandler cgiHandler_;
-	RequestHandler requestHandler_;
+	RequestHandler& requestHandler_;
 	
 	Server(void);
 	int processClientData(int clientFd, const char* buffer, ssize_t bytesRead);
 	void sendResponse(int clientFd, const std::string& response);
 
 public:
-	Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue);
+	Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue, RequestHandler& requestHandler);
 	int getSocketFd() const;
 	int acceptClient();
 	int handleRequest(int clientFd);

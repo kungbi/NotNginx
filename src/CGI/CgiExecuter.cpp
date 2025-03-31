@@ -36,13 +36,13 @@ void CgiExecuter::executeChild(int pipefd[2], const CgiRequestData& requestData)
         setupBodyPipe(requestData.requestBody);
     }
     
-    execlp(requestData.routeResult.interpreter.c_str(), requestData.routeResult.interpreter.c_str(), requestData.routeResult.scriptPath.c_str(), NULL);
+    execlp(requestData.routeResult.cgiInterpreter.c_str(), requestData.routeResult.cgiInterpreter.c_str(), requestData.routeResult.filePath.c_str(), NULL);
     perror("execlp");
     exit(1);
 }
 
 void CgiExecuter::setEnvVariables(const CgiRequestData& requestData) {
-    setenv("PATH_INFO", requestData.routeResult.scriptPath.c_str(), 1);
+    setenv("PATH_INFO", requestData.routeResult.filePath.c_str(), 1);
     setenv("QUERY_STRING", requestData.queryString.c_str(), 1);
     setenv("REQUEST_METHOD", requestData.requestMethod.c_str(), 1);
     

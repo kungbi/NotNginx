@@ -2,7 +2,7 @@
 
 LocationConfig::LocationConfig(
     const std::string pattern,
-    const std::string root,	
+    const std::string root,    
     const std::vector<std::string>& allowMethod,
     const bool autoindex,
     const std::map<int, std::string>& redirect,
@@ -19,7 +19,7 @@ LocationConfig::LocationConfig(
 {}
 
 bool LocationConfig::isAutoindex() const {
-	return autoindex;
+    return autoindex;
 }
 
 std::string LocationConfig::getPattern() const {
@@ -32,4 +32,8 @@ std::string LocationConfig::getRoot() const {
 
 std::string LocationConfig::getCgiInterpreter() const {
     return cgiInterpreter;
+}
+
+const std::vector<std::string>& LocationConfig::getIndex() const {
+    return index; // Return the index vector
 }

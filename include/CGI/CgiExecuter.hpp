@@ -29,9 +29,7 @@ struct CgiRequestData {
 	std::string queryString;
 	std::string requestMethod;
 	std::string requestBody;
-
-	CgiRequestData() {}
-
+	
 	CgiRequestData(RouteResult routeResult, const std::string& query, const std::string& method, const std::string& body)
 		: routeResult(routeResult) ,queryString(query), requestMethod(method), requestBody(body) {}
 };
