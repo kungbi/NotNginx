@@ -10,6 +10,20 @@
 #include <signal.h>
 #include "Router.hpp"
 
+struct PathInfo {
+    std::string interpreter;   // CGI 스크립트를 실행할 인터프리터 경로 (예: /usr/bin/python)
+    std::string scriptPath;    // 실행할 CGI 스크립트의 경로 (예: /var/www/cgi-bin/script.py)
+    std::string requestPath;   // 클라이언트가 요청한 경로 (예: /cgi-bin/script.py)
+    std::string additionalPath; // 추가적인 경로 정보 (예: /extra/path)
+
+    // 기본 생성자
+    PathInfo() {}
+
+    // 매개변수를 받는 생성자
+    PathInfo(const std::string& interpreter, const std::string& scriptPath, const std::string& requestPath, const std::string& additionalPath)
+        : interpreter(interpreter), scriptPath(scriptPath), requestPath(requestPath), additionalPath(additionalPath) {}
+};
+
 struct CgiRequestData {
 	PathInfo pathInfo;
 	std::string queryString;
