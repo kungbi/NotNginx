@@ -25,15 +25,15 @@ struct PathInfo {
 };
 
 struct CgiRequestData {
-	PathInfo pathInfo;
+	RouteResult routeResult;
 	std::string queryString;
 	std::string requestMethod;
 	std::string requestBody;
 
 	CgiRequestData() {}
 
-	CgiRequestData(PathInfo pathInfo, const std::string& query, const std::string& method, const std::string& body)
-		: pathInfo(pathInfo) ,queryString(query), requestMethod(method), requestBody(body) {}
+	CgiRequestData(RouteResult routeResult, const std::string& query, const std::string& method, const std::string& body)
+		: routeResult(routeResult) ,queryString(query), requestMethod(method), requestBody(body) {}
 };
 
 class CgiExecuter {
@@ -51,7 +51,7 @@ public:
 	~CgiExecuter();
 
 	int run(
-		PathInfo pathInfo,
+		RouteResult routeResult,
 		const std::string& queryString,
 		const std::string& requestMethod,
 		const std::string& requestBody

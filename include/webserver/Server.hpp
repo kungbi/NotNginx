@@ -12,6 +12,9 @@
 # include "Response.hpp"
 # include "StaticResourceResponse.hpp"
 # include "Router.hpp"
+# include "CgiHandler.hpp"
+# include "StaticResourceHandler.hpp"
+# include "RequestHandler.hpp"
 
 class Server {
 private:
@@ -20,20 +23,20 @@ private:
 	Kqueue& kqueue_;
 	Connections connections_;
 	Router router_;
-
+	CgiHandler cgiHandler_;
+	RequestHandler requestHandler_;
+	
 	Server(void);
-
 	int processClientData(int clientFd, const char* buffer, ssize_t bytesRead);
 	void sendResponse(int clientFd, const std::string& response);
 
 public:
-	Server(Socket &serverSocket, ServerConfig& serverConfig, Kqueue& kqueue);
+	Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue);
 	int getSocketFd() const;
 	int acceptClient();
 	int handleRequest(int clientFd);
 	int handleResponse(int clientFd);
 	void closeConnection(int clientFd);
 };
-
 
 #endif
