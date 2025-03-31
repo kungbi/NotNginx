@@ -1,22 +1,20 @@
 #include "ConfigAdapter.hpp"
 
-HTTPConfig ConfigAdapter::convertToHTTPConfig(ConfigData& configData)
-{
-    std::vector<ServerConfig> servers;
-    IConfigContext* rootContext = configData.getRoot();
-    
-    if (!rootContext)
-	{
-        throw std::runtime_error("Config root context is null");
-    }
+HTTPConfig ConfigAdapter::convertToHTTPConfig(ConfigData& configData) {
+	std::vector<ServerConfig*> servers; // Store pointers
+	IConfigContext* rootContext = configData.getRoot();
 
-    std::vector<IConfigContext*> serverContexts = rootContext->getChild();
-    for (size_t i = 0; i < serverContexts.size(); ++i)
-    {
-        servers.push_back(convertToServerConfig(serverContexts[i]));
-    }
+	if (!rootContext) {
+		throw std::runtime_error("Config root context is null");
+	}
 
-    return HTTPConfig(servers);
+	std::vector<IConfigContext*> serverContexts = rootContext->getChild();
+	for (size_t i = 0; i < serverContexts.size(); ++i) {
+		servers.push_back(new ServerConfig(convertToServerConfig(serverContexts[i]))); // Allocate dynamically
+	}
+
+	std::cout << "convertToHTTPConfig: Created " << servers.size() << " servers." << std::endl;
+	return HTTPConfig(servers); // Pass the vector to HTTPConfig
 }
 
 ServerConfig ConfigAdapter::convertToServerConfig(IConfigContext* serverContext)
@@ -26,8 +24,11 @@ ServerConfig ConfigAdapter::convertToServerConfig(IConfigContext* serverContext)
     std::string serverName;
     size_t clientMaxBodySize = 1;
     std::map<int, std::string> errorPages;
+    errorPages.clear(); // Ensure errorPages is cleared before use
     std::vector<LocationConfig> locations;
     bool isDefault = false;
+
+	errorPages.clear();
 
     std::vector<IConfigDirective*> directives = serverContext->getDirectives();
 
@@ -129,5 +130,5 @@ LocationConfig ConfigAdapter::convertToLocationConfig(IConfigContext* locationCo
         }
     }
     
-    return LocationConfig(pattern, root, allowMethods, autoindex, redirect, index, cgiInterpreter);
+    return LocationConfig(pattern, root, allowMethods, autoindex, redirect, index, cgiInterpreter, pattern);
 }

@@ -5,47 +5,47 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <iostream>
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
+#include "Request.hpp"
+#include "HttpExceptions.hpp"
 
-struct RouteResult {
-    std::string scriptPath;
-    std::string interpreter;
-
-    RouteResult() {}
-    RouteResult(const std::string& script, const std::string& interp)
-        : scriptPath(script), interpreter(interp) {}
+enum RouteType {
+	STATIC_RESOURCE,
+	CGI_RESOURCE
 };
 
-struct RouteData {
-    std::string pattern;
-    std::string root;
-    std::string cgiInterpreter;
+struct RouteResult {
+	RouteType type;
+	std::string filePath;
+	std::string cgiInterpreter;
+	std::string fileExtension;
 
-    RouteData() {}
-    RouteData(const std::string& pattern, const std::string& root, const std::string& cgi)
-        : pattern(pattern), root(root), cgiInterpreter(cgi) {}
+	RouteResult(RouteType routeType, const std::string& path, const std::string& interpreter = "", const std::string& extension = "")
+		: type(routeType), filePath(path), cgiInterpreter(interpreter), fileExtension(extension) {}
 };
 
 class Router {
 private:
-    typedef std::pair<std::string, RouteData> RoutePair;
-    std::map<std::string, RouteData> routes_;
-    std::vector<RoutePair> sortedRoutes_;
+	typedef std::pair<std::string, LocationConfig> LocationPair;
 
-    void sortRoutes();
-    void addRoute(const LocationConfig& location);
-    static bool compareRouteLength(const RoutePair& a, const RoutePair& b);
-    static RouteData toRouteData(const LocationConfig& location);
+	std::vector<LocationPair> sortedLocations_;
 
+	void sortLocations();
+	static bool compareLength(const LocationPair& a, const LocationPair& b);
+	bool matchPattern(const std::string& target, const std::string& pattern) const;
+	std::string getRelativePath(const std::string& target, const std::string& pattern) const;
+	std::string getFilePath(const LocationConfig& location, const std::string& relativePath, const std::string& fileName) const;
+	RouteResult createResult(const LocationConfig& location, const std::string& filePath, const std::string& fileExtension) const;
+	std::string getIndex(const LocationConfig& location) const;
+	bool exists(const std::string& path) const;
+	std::string getExtension(const std::string& fileName) const;
 
 public:
-    Router(ServerConfig& serverConfig);
-    ~Router();
+	Router(const ServerConfig& serverConfig);
+	~Router();
 
-    RouteResult convertPath(const std::string& path, const std::string& fileName);
-    void printRoutes();
+	RouteResult routeRequest(const Request& request) const;
 };
 
-#endif // ROUTER_HPP
+#endif

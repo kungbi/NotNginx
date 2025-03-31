@@ -14,22 +14,27 @@ private:
 	std::map<int, std::string> redirect;
 	std::vector<std::string> index;
 	std::string cgiInterpreter;
+	std::string path;
 
 public:
 	LocationConfig(
-		const std::string pattern,
-		const std::string root,	
+		const std::string& pattern,
+		const std::string& root,
 		const std::vector<std::string>& allowMethod,
-		const bool autoindex,
+		bool autoindex,
 		const std::map<int, std::string>& redirect,
 		const std::vector<std::string>& index,
-		const std::string cgiInterpreter
+		const std::string& cgiInterpreter,
+		const std::string& path // Ensure const references
 	);
 
 	bool isAutoindex() const;
 	std::string getPattern() const;
 	std::string getRoot() const;
 	std::string getCgiInterpreter() const;
+	const std::vector<std::string>& getIndex() const;
+	std::string getPath() const;
+	bool isAutoindexEnabled() const;
 };
 
 #endif // LOCATIONCONFIG_HPP

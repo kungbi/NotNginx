@@ -1,84 +1,132 @@
 #include "Router.hpp"
+#include <sys/stat.h>
 
-Router::Router(ServerConfig& serverConfig) {
-    const std::vector<LocationConfig>& locs = serverConfig.getLocations();
-    for (size_t i = 0; i < locs.size(); i++) {
-        addRoute(locs[i]);
-    }
-    sortRoutes();
+Router::Router(const ServerConfig& serverConfig) {
+	const std::vector<LocationConfig>& locations = serverConfig.getLocations();
+	for (size_t i = 0; i < locations.size(); i++) {
+		sortedLocations_.push_back(std::make_pair(locations[i].getPattern(), locations[i]));
+	}
+	sortLocations();
 }
 
 Router::~Router() {}
 
-// LocationConfig를 RouteData로 변환
-RouteData Router::toRouteData(const LocationConfig& location) {
-    RouteData rd;
-    rd.pattern = location.getPattern();
-    rd.root = location.getRoot();
-    rd.cgiInterpreter = location.getCgiInterpreter();
-    return rd;
+void Router::sortLocations() {
+	std::sort(sortedLocations_.begin(), sortedLocations_.end(), compareLength);
 }
 
-void Router::addRoute(const LocationConfig& location) {
-    RouteData rd = toRouteData(location);
-    routes_[rd.pattern] = rd;
+bool Router::compareLength(const LocationPair& a, const LocationPair& b) {
+	return a.first.size() > b.first.size();
 }
 
-bool Router::compareRouteLength(const RoutePair& a, const RoutePair& b) {
-    return a.first.size() > b.first.size();
+bool Router::matchPattern(const std::string& target, const std::string& pattern) const {
+	return target.find(pattern) == 0;
 }
 
-void Router::sortRoutes() {
-    sortedRoutes_.clear();
-    for (std::map<std::string, RouteData>::iterator it = routes_.begin();
-         it != routes_.end(); ++it) {
-        sortedRoutes_.push_back(*it);
-    }
-    std::sort(sortedRoutes_.begin(), sortedRoutes_.end(), compareRouteLength);
+std::string Router::getRelativePath(const std::string& target, const std::string& pattern) const {
+	std::string relativePath = target.substr(pattern.size());
+	if (!relativePath.empty() && relativePath[0] == '/') {
+		relativePath = relativePath.substr(1);
+	}
+	return relativePath;
 }
 
-void Router::printRoutes() {
-    std::cout << "\n=== 현재 저장된 라우팅 테이블 ===\n";
-    for (size_t i = 0; i < sortedRoutes_.size(); i++) {
-        const RouteData& rd = sortedRoutes_[i].second;
-        std::cout << "Path: " << rd.pattern
-                  << ", Root: " << rd.root
-                  << ", CGI Interpreter: " << rd.cgiInterpreter << std::endl;
-    }
+std::string Router::getFilePath(const LocationConfig& location, const std::string& relativePath, const std::string& fileName) const {
+	std::string filePath = location.getRoot();
+	if (!relativePath.empty()) {
+		filePath += "/" + relativePath;
+	}
+	if (!fileName.empty()) {
+		filePath += "/" + fileName;
+	}
+	return filePath;
 }
 
-RouteResult Router::convertPath(const std::string& path, const std::string& fileName) {
-    bool isPy = (fileName.rfind(".py") != std::string::npos);
+RouteResult Router::createResult(const LocationConfig& location, const std::string& filePath, const std::string& fileExtension) const {
+	if (!location.getCgiInterpreter().empty()) {
+		return RouteResult(CGI_RESOURCE, filePath, location.getCgiInterpreter(), fileExtension);
+	}
+	return RouteResult(STATIC_RESOURCE, filePath, "", fileExtension);
+}
 
-    // CGI 라우트 처리
-    if (isPy && routes_.count(".py") > 0) {
-        std::string combinedPath;
-        if (path.empty()) {
-            combinedPath = "/" + fileName;
-        } else {
-            combinedPath = path;
-            if (!fileName.empty() && path[path.size() - 1] != '/') {
-                combinedPath += "/";
-            }
-            combinedPath += fileName;
-        }
-        std::string scriptPath = routes_[".py"].root + combinedPath;
-        return RouteResult(scriptPath, routes_[".py"].cgiInterpreter);
-    }
-    // 정적 라우트 처리
-    for (size_t i = 0; i < sortedRoutes_.size(); i++) {
-        const RouteData& rd = sortedRoutes_[i].second;
-        if (path.find(rd.pattern) == 0) {
-            std::string scriptPath = rd.root + path.substr(rd.pattern.size());
+std::string Router::getIndex(const LocationConfig& location) const {
+	if (!location.getIndex().empty()) {
+		return location.getIndex()[0];
+	}
+	throw std::runtime_error("Error: No index file found in location with autoindex enabled.");
+}
 
-            if (rd.pattern == "/" && path.size() != 1) {
-                scriptPath = rd.root + "/" + path.substr(1);
-            }
-            if (!fileName.empty()) {
-                scriptPath += "/" + fileName;
-            }
-            return RouteResult(scriptPath, "");
-        }
-    }
-    throw std::runtime_error("Error: No route found for path: " + path);
+bool Router::exists(const std::string& path) const {
+	struct stat buffer;
+	return (stat(path.c_str(), &buffer) == 0);
+}
+
+std::string Router::getExtension(const std::string& fileName) const {
+	size_t dotPos = fileName.rfind('.');
+	if (dotPos != std::string::npos) {
+		return fileName.substr(dotPos + 1);
+	}
+	return "";
+}
+
+RouteResult Router::routeRequest(const Request& request) const {
+	const std::string& target = request.getTarget();
+	const std::string& fileName = request.getFilename();
+
+	// Check if the target path exists
+	if (!exists(target)) {
+		throw NotFoundError("Error: Target path does not exist: " + target);
+	}
+
+	for (size_t i = 0; i < sortedLocations_.size(); i++) {
+		const std::string& pattern = sortedLocations_[i].first;
+		const LocationConfig& location = sortedLocations_[i].second;
+
+		if (!matchPattern(target, pattern)) {
+			continue;
+		}
+
+		std::string relativePath = getRelativePath(target, pattern);
+
+		if (!fileName.empty() && relativePath.size() >= fileName.size() &&
+			relativePath.substr(relativePath.size() - fileName.size()) == fileName) {
+			relativePath = relativePath.substr(0, relativePath.size() - fileName.size());
+			if (!relativePath.empty() && relativePath.back() == '/') {
+				relativePath.pop_back();
+			}
+		}
+
+		std::string resolvedFileName = fileName;
+		std::string fileExtension;
+		if (fileName.empty()) {
+			const std::vector<std::string>& indices = location.getIndex();
+			for (size_t j = 0; j < indices.size(); j++) {
+				std::string potentialFilePath = getFilePath(location, relativePath, indices[j]);
+				if (exists(potentialFilePath)) {
+					resolvedFileName = indices[j];
+					fileExtension = getExtension(resolvedFileName);
+					break;
+				}
+			}
+			if (resolvedFileName.empty() && !location.isAutoindexEnabled()) {
+				throw ForbiddenError("Error: No index file found and autoindex is disabled.");
+			}
+		} else {
+			fileExtension = getExtension(fileName);
+		}
+
+		std::string filePath = getFilePath(location, relativePath, resolvedFileName);
+
+		if (!resolvedFileName.empty()) {
+			return createResult(location, filePath, fileExtension);
+		}
+
+		if (!exists(filePath)) {
+			filePath = location.getRoot() + "/" + relativePath;
+		}
+
+		return createResult(location, filePath, fileExtension);
+	}
+
+	throw std::runtime_error("Error: No matching location found for target: " + target);
 }

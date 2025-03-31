@@ -11,13 +11,11 @@ std::string requestTypeToString(RequestType type) {
 	}
 }
 
-Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue)
+Server::Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue, RequestHandler& requestHandler)
 	: serverSocket_(serverSocket),
 	  serverConfig_(serverConfig),
 	  kqueue_(kqueue),
-	  router_(serverConfig),
-	  cgiHandler_(kqueue),
-	  requestHandler_(router_, cgiHandler_) {
+	  requestHandler_(requestHandler) {
 	std::cout << "Server initialized at " << serverConfig.getServerName() << ":" << serverConfig.getPort() << std::endl;
 }
 
@@ -39,7 +37,7 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-		Response* response = requestHandler_.dispatch(request, clientFd);
+		Response* response = requestHandler_.dispatch(request);
 		if (response != NULL) {
 			this->connections_.addResponse(clientFd, *response);
 			this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
@@ -96,4 +94,60 @@ int Server::handleResponse(int clientFd) {
 void Server::closeConnection(int clientFd) {
 	close(clientFd);
 	this->connections_.removeConnection(clientFd);
+}
+
+void Server::handleError(int clientFd, int errorCode) {
+	std::string resolvedErrorFile = resolveErrorFile(errorCode);
+	if (resolvedErrorFile.empty()) {
+		throw std::runtime_error("No matching location found for error file.");
+	}
+
+	std::string response = readErrorFile(resolvedErrorFile);
+	if (response.empty()) {
+		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
+		closeConnection(clientFd);
+		return;
+	}
+
+	sendErrorResponse(clientFd, errorCode, response);
+	closeConnection(clientFd);
+}
+
+std::string Server::resolveErrorFile(int errorCode) {
+	const std::map<int, std::string>& errorPages = serverConfig_.getErrorPages();
+	if (errorPages.find(errorCode) == errorPages.end()) {
+		throw NotFoundError("Error page not found errorpage");
+	}
+
+	std::string errorFile = errorPages.at(errorCode);
+	const std::vector<LocationConfig>& locations = serverConfig_.getLocations();
+	for (size_t i = 0; i < locations.size(); ++i) {
+		const LocationConfig& location = locations[i];
+		if (errorFile.find(location.getPattern()) == 0) {
+			std::string relativePath = errorFile.substr(location.getPattern().size());
+			if (!relativePath.empty() && relativePath[0] == '/') {
+				relativePath = relativePath.substr(1);
+			}
+			return location.getRoot() + "/" + relativePath;
+		}
+	}
+	return "";
+}
+
+std::string Server::readErrorFile(const std::string& filePath) {
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		return "";
+	}
+	return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+}
+
+void Server::sendErrorResponse(int clientFd, int errorCode, const std::string& response) {
+	std::string httpResponse = 
+		"HTTP/1.1 " + std::to_string(errorCode) + " Error\r\n" +
+		"Content-Length: " + std::to_string(response.size()) + "\r\n" +
+		"Connection: close\r\n\r\n" +
+		response;
+
+	sendResponse(clientFd, httpResponse);
 }

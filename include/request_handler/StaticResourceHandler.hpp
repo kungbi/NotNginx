@@ -6,6 +6,7 @@
 # include "Response.hpp"
 # include "StaticResourceResponse.hpp"
 # include "MimeTypes.hpp"
+# include "HttpExceptions.hpp"
 
 class StaticResourceHandler {
 private:

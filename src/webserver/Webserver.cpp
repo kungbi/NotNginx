@@ -1,4 +1,6 @@
 #include "Webserver.hpp"
+#include <fstream>
+#include "HttpExceptions.hpp" // Include the custom exceptions header
 
 Webserver::Webserver(Kqueue& kqueue, Servers& servers, WebserverConfig& config)
 	: kqueue_(kqueue), servers_(servers), config_(config) {}
@@ -52,17 +54,23 @@ void Webserver::processEvents(struct kevent& event) {
 			delete eventInfo;
 		}
 	}
-
 }
 
 void Webserver::start() {
-	std::cout << "Webserver started." << std::endl << std::endl;
-
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
-		processEvents(*event); // 이벤트 처리
-		std::cout << "================" << std::endl;
+		int fd = event->ident;
+		EventInfo* eventInfo = (EventInfo *) event->udata;
 
-		delete[] event; // 메모리 해제
+		try {
+			processEvents(*event);
+		} catch (const HttpException& e) {
+			std::cerr << "HTTP Exception: " << e.what() << std::endl;
+			std::cerr << "Status Code: " << e.getStatusCode() << std::endl;
+			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
+			server->handleError(fd, e.getStatusCode());
+		}
+
+		delete[] event;
 	}
 }

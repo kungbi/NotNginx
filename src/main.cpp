@@ -7,27 +7,28 @@
 #include "ConfigReader.hpp"
 #include "ConfigParser.hpp"
 #include "ConfigAdapter.hpp"
+#include "RequestHandler.hpp"
 
 WebserverConfig* initializeConfig(std::string configPath)
 {
-    // 설정 파일을 읽기
-    ConfigReader reader;
-    std::string configContent = reader.readConfigFile(configPath);  // 설정 파일 경로
+	// 설정 파일을 읽기
+	ConfigReader reader;
+	std::string configContent = reader.readConfigFile(configPath);  // 설정 파일 경로
 
-    if (configContent.empty()) throw std::runtime_error("Failed to read configuration file.");
+	if (configContent.empty()) throw std::runtime_error("Failed to read configuration file.");
 
-    // 설정을 파싱하여 트리 구조 생성
-    ConfigParser parser;
-    parser.tokenize(configContent);
-    IConfigContext* rootContext = parser.parseConfig();
+	// 설정을 파싱하여 트리 구조 생성
+	ConfigParser parser;
+	parser.tokenize(configContent);
+	IConfigContext* rootContext = parser.parseConfig();
 
-    if (!rootContext) throw std::runtime_error("Failed to parse configuration.");
+	if (!rootContext) throw std::runtime_error("Failed to parse configuration.");
 
-    // 트리를 HTTPConfig 객체로 변환
-    ConfigData configData(rootContext);
-    HTTPConfig httpConfig = ConfigAdapter::convertToHTTPConfig(configData);
+	// 트리를 HTTPConfig 객체로 변환
+	ConfigData configData(rootContext);
+	HTTPConfig httpConfig = ConfigAdapter::convertToHTTPConfig(configData);
 
-    return new WebserverConfig(httpConfig);
+	return new WebserverConfig(httpConfig);
 }
 
 #include <stdlib.h>
@@ -39,11 +40,14 @@ void leak() {
 Webserver* dependencyInjection(WebserverConfig* config) {
 	Kqueue* kqueue = new Kqueue(1024);
 	Servers* servers = new Servers(*kqueue);
-	for (std::vector<ServerConfig>::const_iterator it = config->getHTTPConfig().getServers().begin(); it != config->getHTTPConfig().getServers().end(); ++it) {
-		ServerConfig serverConfig = *it;
-		Socket* serverSocket = new Socket(serverConfig.getHost(), serverConfig.getPort());
-		Server* server = servers->createServer(*serverSocket, serverConfig, *kqueue);
 
+	const std::vector<ServerConfig*>& serverConfigs = config->getHTTPConfig().getServers();
+	for (std::vector<ServerConfig*>::const_iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
+		ServerConfig* serverConfig = *it;
+		Socket* serverSocket = new Socket(serverConfig->getHost(), serverConfig->getPort());
+		Router* router = new Router(*serverConfig);
+		RequestHandler* requestHandler = new RequestHandler(*router);
+		Server* server = servers->createServer(*serverSocket, *serverConfig, *kqueue, *requestHandler);
 		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);
 	}

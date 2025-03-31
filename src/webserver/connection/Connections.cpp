@@ -16,8 +16,13 @@ void Connections::addConnection(int fd) {
 }
 
 void Connections::removeConnection(int fd) {
-	delete this->connections_.at(fd);
-	this->connections_.erase(fd);
+	// Ensure the connection exists before deleting
+	if (this->connections_.find(fd) == this->connections_.end()) {
+		throw std::runtime_error("Attempting to remove a non-existent connection");
+	}
+
+	delete this->connections_.at(fd); // Free the memory
+	this->connections_.erase(fd);    // Remove the entry from the map
 }
 
 bool Connections::hasConnection(int fd) const {
@@ -47,7 +52,7 @@ Response* Connections::getResponse(int fd) {
 Connections::~Connections() {
 	std::map<int, Connection*>::iterator it;
 	for (it = connections_.begin(); it != connections_.end(); ++it) {
-		delete it->second;
+		delete it->second; // Ensure all dynamically allocated memory is freed
 	}
 	connections_.clear();
 }
