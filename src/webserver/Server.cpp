@@ -94,6 +94,7 @@ int Server::handleResponse(int clientFd) {
 
 	Response* response = this->connections_.getResponse(clientFd);
 	sendResponse(clientFd, response->getResponse());
+	delete response; // 응답 객체 삭제
 	return 0;
 }
 
