@@ -1,6 +1,6 @@
 # 컴파일러 및 플래그 설정
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++98
+CXXFLAGS = -Wall -Wextra -std=c++98 -g
 
 # 디렉토리 설정
 SRC_DIR = src

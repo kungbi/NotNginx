@@ -8,7 +8,12 @@ IConfigContext::IConfigContext(IConfigContext *parent, int contextType)
 		parent->addChild(this);;
 }
 
-IConfigContext::~IConfigContext() {}
+IConfigContext::~IConfigContext() {
+	for (size_t i = 0; i < directives_.size(); ++i)
+		delete directives_[i];
+	for (size_t i = 0; i < child_.size(); ++i)
+		delete child_[i];
+}
 
 
 
@@ -63,22 +68,12 @@ bool IConfigContext::isValid() const
 void deleteTree(IConfigContext *root)
 {
 	if (!root)
-	{
 		return ;
-	}
 	
-	std::vector<IConfigContext *> childs = root->getChild();
-	for (size_t i = 0; i < childs.size(); ++i)
-	{
-		deleteTree(childs[i]);
-	}
-	
-	std::vector<IConfigDirective *> directives = root->getDirectives();
-	for (size_t i = 0; i < directives.size(); ++i)
-	{
-		delete directives[i];
-	}
-	
+	for (size_t i = 0; i < root->getChild().size(); ++i)
+		deleteTree(root->getChild()[i]);
+	for (size_t i = 0; i < root->getDirectives().size(); ++i)
+		delete root->getDirectives()[i];
 	delete root;
 }
 

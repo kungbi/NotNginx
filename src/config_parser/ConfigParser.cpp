@@ -21,9 +21,9 @@ IConfigContext* ConfigParser::parseConfig()
         parseConfigRecursive(configTokens_, root);
         // fix: root의 첫 번째 자식(`http`)을 진짜 루트로 설정
         if (!root->getChild().empty())
-		{
-            rootContext = root->getChild()[0];
-        }
+            return root;
+
+        throw std::runtime_error("Parsed configuration is empty.");
     }
     catch (const std::exception& e)
     {
@@ -32,7 +32,7 @@ IConfigContext* ConfigParser::parseConfig()
         return nullptr;
     }
 
-    return rootContext;
+	return nullptr;
 }
 
 void ConfigParser::parseConfigRecursive(std::vector<std::string> configTokens, IConfigContext* parentContext)

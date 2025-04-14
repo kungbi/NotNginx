@@ -1,7 +1,7 @@
 #include "ConfigAdapter.hpp"
 
-HTTPConfig ConfigAdapter::convertToHTTPConfig(ConfigData& configData) {
-	std::vector<ServerConfig*> servers; // Store pointers
+HTTPConfig *ConfigAdapter::convertToHTTPConfig(ConfigData& configData) {
+	std::vector<ServerConfig*>* servers = new std::vector<ServerConfig*>(); // Initialize the vector of ServerConfig pointers
 	IConfigContext* rootContext = configData.getRoot();
 
 	if (!rootContext) {
@@ -10,11 +10,11 @@ HTTPConfig ConfigAdapter::convertToHTTPConfig(ConfigData& configData) {
 
 	std::vector<IConfigContext*> serverContexts = rootContext->getChild();
 	for (size_t i = 0; i < serverContexts.size(); ++i) {
-		servers.push_back(new ServerConfig(convertToServerConfig(serverContexts[i]))); // Allocate dynamically
+		servers->push_back(new ServerConfig(convertToServerConfig(serverContexts[i]))); // Allocate dynamically
 	}
 
-	std::cout << "convertToHTTPConfig: Created " << servers.size() << " servers." << std::endl;
-	return HTTPConfig(servers); // Pass the vector to HTTPConfig
+	std::cout << "convertToHTTPConfig: Created " << servers->size() << " servers." << std::endl; // Access size of the vector correctly
+	return new HTTPConfig(servers); // Pass the vector to HTTPConfig without address-of operator
 }
 
 ServerConfig ConfigAdapter::convertToServerConfig(IConfigContext* serverContext)

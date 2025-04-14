@@ -8,15 +8,13 @@
 
 class HTTPConfig {
 private:
-	std::vector<ServerConfig*> servers; // Store pointers to ServerConfig
+	std::vector<ServerConfig*>* servers; // Store pointers to ServerConfig
 
 public:
-	HTTPConfig(const std::vector<ServerConfig*>& servers); // Constructor
-	~HTTPConfig(); // Destructor to free memory
-	HTTPConfig(const HTTPConfig& other); // Copy constructor
-	HTTPConfig& operator=(const HTTPConfig& other); // Assignment operator
+	HTTPConfig(std::vector<ServerConfig*>* servers); // Constructor
+	~HTTPConfig();
 
-	const std::vector<ServerConfig*>& getServers() const; // Return vector of pointers
+	const std::vector<ServerConfig*>* getServers() const; // Return vector of pointers
 };
 
 #endif // HTTPCONFIG_HPP

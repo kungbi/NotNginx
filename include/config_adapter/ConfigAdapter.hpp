@@ -13,7 +13,7 @@ class ConfigAdapter
 		static ServerConfig convertToServerConfig(IConfigContext* serverContext);
 
 	public:
-		static HTTPConfig convertToHTTPConfig(ConfigData& configData);
+		static HTTPConfig *convertToHTTPConfig(ConfigData& configData);
 };
 
 #endif

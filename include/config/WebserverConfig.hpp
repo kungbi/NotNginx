@@ -9,15 +9,15 @@
 
 class WebserverConfig {
 private:
-	HTTPConfig httpConfig; // HTTP 설정
+	HTTPConfig* httpConfig; // HTTP 설정
 
 	WebserverConfig(void);
 
 public:
 	// 생성자
-	WebserverConfig(const HTTPConfig& httpConfig);
+	WebserverConfig(HTTPConfig* httpConfig);
 
-	HTTPConfig& getHTTPConfig() const;
+	HTTPConfig* getHTTPConfig() const;
 };
 
 #endif // WEBSERVERCONFIG_HPP

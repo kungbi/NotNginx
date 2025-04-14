@@ -1,5 +1,12 @@
 #include "Server.hpp"
 
+enum HandleRequestResult {
+    SUCCESS = 0,
+    CLIENT_DISCONNECTED = 1,
+    NO_REQUEST_YET = 2,
+    ERROR = -1
+};
+
 std::string requestTypeToString(RequestType type) {
 	switch (type) {
 		case GET: return "GET";
@@ -43,12 +50,11 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 			this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
 			std::cout << "Response added for client FD: " << clientFd << std::endl;
 		}	
-		return 0;
+		return SUCCESS;
 	}
 
 	std::cout << "No request yet" << std::endl;
-
-	return 2;
+	return NO_REQUEST_YET;
 }
 
 void Server::sendResponse(int clientFd, const std::string& response) {
@@ -71,12 +77,12 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		// 클라이언트가 연결을 닫은 경우
 		std::cout << "Client disconnected on FD: " << clientFd << std::endl;
 		close(clientFd); // 소켓 닫기
-		return 1;
+		return CLIENT_DISCONNECTED;
 	}
 	
 	perror("Error reading from FD");
 	close(clientFd); // 소켓 닫기
-	return 1;
+	return ERROR;
 }
 
 int Server::handleResponse(int clientFd) {

@@ -10,7 +10,7 @@ ConfigData::ConfigData(IConfigContext *contextRoot)
 
 ConfigData::~ConfigData()
 {
-	deleteTree(dataRoot_);
+	// deleteTree(dataRoot_);
 }
 
 IConfigContext* ConfigData::getRoot()
