@@ -73,11 +73,6 @@ RouteResult Router::routeRequest(const Request& request) const {
 	const std::string& target = request.getTarget();
 	const std::string& fileName = request.getFilename();
 
-	// Check if the target path exists
-	if (!exists(target)) {
-		throw NotFoundError("Error: Target path does not exist: " + target);
-	}
-
 	for (size_t i = 0; i < sortedLocations_.size(); i++) {
 		const std::string& pattern = sortedLocations_[i].first;
 		const LocationConfig& location = sortedLocations_[i].second;
@@ -94,6 +89,10 @@ RouteResult Router::routeRequest(const Request& request) const {
 			if (!relativePath.empty() && relativePath.back() == '/') {
 				relativePath.pop_back();
 			}
+		}
+
+		if (!exists(getFilePath(location, relativePath, ""))) {
+			throw NotFoundError("Error: File not found at " + getFilePath(location, relativePath, ""));
 		}
 
 		std::string resolvedFileName = fileName;
