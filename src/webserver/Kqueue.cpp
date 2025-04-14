@@ -31,6 +31,9 @@ int Kqueue::getFilter(int eventType) {
 	if (eventType == KQUEUE_EVENT::RESPONSE) {
 		return EVFILT_WRITE;
 	}
+	if (eventType == KQUEUE_EVENT::CGI_RESPONSE) {
+		return EVFILT_READ;
+	}
 	throw std::runtime_error("Invalid event type");
 }
 

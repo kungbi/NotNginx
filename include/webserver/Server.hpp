@@ -17,6 +17,13 @@
 # include "RequestHandler.hpp"
 # include "HttpExceptions.hpp"
 
+enum HandleRequestResult {
+    SUCCESS = 0,
+    CLIENT_DISCONNECTED = 1,
+    NO_REQUEST_YET = 2,
+    ERROR = -1
+};
+
 class Server {
 private:
 	Socket& serverSocket_;

@@ -9,6 +9,8 @@
 #include "ConfigAdapter.hpp"
 #include "RequestHandler.hpp"
 
+#include "CgiHandler.hpp"
+
 WebserverConfig* initializeConfig(std::string configPath)
 {
 	// 설정 파일을 읽기
@@ -47,7 +49,8 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 		ServerConfig* serverConfig = *it;
 		Socket* serverSocket = new Socket(serverConfig->getHost(), serverConfig->getPort());
 		Router* router = new Router(*serverConfig);
-		RequestHandler* requestHandler = new RequestHandler(*router);
+		CgiHandler* cgiHandler = new CgiHandler(*kqueue);
+		RequestHandler* requestHandler = new RequestHandler(*router, *cgiHandler);
 		Server* server = servers->createServer(*serverSocket, *serverConfig, *kqueue, *requestHandler);
 		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);

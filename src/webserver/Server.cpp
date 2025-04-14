@@ -1,12 +1,5 @@
 #include "Server.hpp"
 
-enum HandleRequestResult {
-    SUCCESS = 0,
-    CLIENT_DISCONNECTED = 1,
-    NO_REQUEST_YET = 2,
-    ERROR = -1
-};
-
 std::string requestTypeToString(RequestType type) {
 	switch (type) {
 		case GET: return "GET";
@@ -44,7 +37,7 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
-		Response* response = requestHandler_.dispatch(request);
+		Response* response = requestHandler_.dispatch(request, clientFd);
 		if (response != NULL) {
 			this->connections_.addResponse(clientFd, *response);
 			this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());

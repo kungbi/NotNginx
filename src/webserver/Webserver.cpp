@@ -54,6 +54,26 @@ void Webserver::processEvents(struct kevent& event) {
 			delete eventInfo;
 		}
 	}
+
+	if (eventInfo->type == KQUEUE_EVENT::CGI_RESPONSE) {
+		std::cout << "CGI response event." << std::endl;
+		char buffer[1024];
+		ssize_t bytesRead = read(fd, buffer, sizeof(buffer));
+		std::cout << "Read bytes: " << bytesRead << std::endl;
+		if (bytesRead == -1 && errno == EAGAIN) {
+			// 아직 데이터가 안 온 것일 수 있음 (non-blocking일 경우)
+			return;
+		}
+		if (bytesRead <= 0) {
+			std::cout << "CGI pipe closed or failed. bytesRead: " << bytesRead << std::endl;
+
+			kqueue_.removeEvent(fd, KQUEUE_EVENT::CGI_RESPONSE);
+			close(fd);
+			delete eventInfo;
+			return;
+		}
+		std::cout << "CGI response data: " << buffer << std::endl;
+	}
 }
 
 void Webserver::start() {

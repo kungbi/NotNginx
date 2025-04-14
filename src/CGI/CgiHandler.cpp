@@ -20,7 +20,8 @@ void CgiHandler::processCgiRequest(const Request& request, int clientFd, RouteRe
     std::string requestMethod = requestTypeToString(request.getRequestType());
 
     int outputFd = cgiExecuter_.run(routeResult, request.getQuery(), requestMethod, request.getBody());
-
+	std::cout << "CGI Executer outputFd: " << outputFd << std::endl;
+	
     if (outputFd < 0) {
         throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");
     }
