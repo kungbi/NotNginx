@@ -73,12 +73,9 @@ int Servers::processRequest(int serverFd, int clientFd) {
 	}
 
 	int result = server->handleRequest(clientFd);
-	std::cout << "Result: " << result << std::endl;
 	if (result == SUCCESS) {
-		kqueue_.removeEvent(clientFd, EVFILT_READ);
-		// server->closeConnection(clientFd);
+		this->kqueue_.removeEvent(clientFd, EVFILT_READ);
 	}
-
 	return result;
 }
 
