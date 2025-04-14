@@ -65,6 +65,7 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		buffer[bytesRead] = '\0'; // Null-terminate for safety
 		return processClientData(clientFd, buffer, bytesRead);
 	}
+	// 이 아래 어차피 실행이 안되는 것 같음.
 	
 	if (bytesRead == 0) {
 		// 클라이언트가 연결을 닫은 경우
@@ -102,7 +103,8 @@ int Server::handleCgiResponse(int cgiFd, int clientFd) {
 		std::cout << "CGI pipe closed." << std::endl;
 		this->connections_.appendCgiBuffer(clientFd, cgiFd, "", true); // CGI 응답 종료
 		this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
-		close(cgiFd);
+		this->kqueue_.removeEvent(cgiFd, EVFILT_READ); // CGI FD에서 이벤트 제거
+		close(cgiFd); // CGI FD 닫기
 		return 0; // 처리 완료
 	}
 

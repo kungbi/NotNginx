@@ -101,8 +101,5 @@ int Servers::processCgiResponse(int serverFd, int clientFd, int cgiFd) {
 	}
 
 	int result = server->handleCgiResponse(cgiFd, clientFd);
-	if (result == SUCCESS) {
-		// kqueue_.removeEvent(clientFd, EVFILT_READ);
-	}
 	return result;
 }
