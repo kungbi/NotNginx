@@ -91,6 +91,28 @@ int Server::handleResponse(int clientFd) {
 	return 0;
 }
 
+int Server::handleCgiResponse(int cgiFd, int clientFd) {
+	char buffer[1025];
+	ssize_t bytesRead = read(cgiFd, buffer, sizeof(buffer) - 1);
+	if (bytesRead == -1 && errno == EAGAIN) {
+		return 1; // 다시 읽도록 유지
+	}
+
+	if (bytesRead <= 0) {
+		std::cout << "CGI pipe closed." << std::endl;
+		this->connections_.appendCgiBuffer(clientFd, cgiFd, "", true); // CGI 응답 종료
+		this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
+		close(cgiFd);
+		return 0; // 처리 완료
+	}
+
+	// CGI 응답을 연결 객체에 저장
+	buffer[bytesRead] = '\0';
+	this->connections_.appendCgiBuffer(clientFd, cgiFd, std::string(buffer, bytesRead), false);
+	return 1; // 아직 응답 수신 중
+}
+
+
 void Server::closeConnection(int clientFd) {
 	close(clientFd);
 	this->connections_.removeConnection(clientFd);
@@ -151,3 +173,4 @@ void Server::sendErrorResponse(int clientFd, int errorCode, const std::string& r
 
 	sendResponse(clientFd, httpResponse);
 }
+

@@ -92,3 +92,17 @@ int Servers::processResponse(int serverFd, int clientFd) {
 	server->closeConnection(clientFd);
 	return 0;
 }
+
+int Servers::processCgiResponse(int serverFd, int clientFd, int cgiFd) {
+	Server* server = getServerForSocketFd(serverFd);
+	if (!server) {
+		std::cerr << "No server found for CGI FD: " << serverFd << std::endl;
+		return 0;
+	}
+
+	int result = server->handleCgiResponse(cgiFd, clientFd);
+	if (result == SUCCESS) {
+		// kqueue_.removeEvent(clientFd, EVFILT_READ);
+	}
+	return result;
+}

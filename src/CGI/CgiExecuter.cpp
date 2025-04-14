@@ -48,9 +48,7 @@ void CgiExecuter::executeChild(int writeFd, const CgiRequestData& requestData) {
 
 	// 환경변수 세팅
 	setEnvVariables(requestData);
-
-	std::cout << "Executing CGI: " << requestData.routeResult.cgiInterpreter << " " << requestData.routeResult.filePath << std::endl;
-
+	
 	// CGI 실행
 	execlp(requestData.routeResult.cgiInterpreter.c_str(),
 	       requestData.routeResult.cgiInterpreter.c_str(),

@@ -10,9 +10,10 @@ class RequestHandler {
 private:
     Router& router_;
     CgiHandler& cgiHandler_;
+	int serverFd_;
 
 public:
-	RequestHandler(Router& router, CgiHandler& cgiHandler);
+	RequestHandler(int serverFd, Router& router, CgiHandler& cgiHandler);
     ~RequestHandler();
 
     Response* dispatch(const Request& request, int clientFd);

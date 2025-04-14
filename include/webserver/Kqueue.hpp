@@ -19,8 +19,10 @@ namespace KQUEUE_EVENT {
 typedef struct EventInfo {
 	int type;
 	int serverFd;
+	int clientFd;
 
 	EventInfo(int type, int serverFd) : type(type), serverFd(serverFd) {}
+	EventInfo(int type, int serverFd, int clientFd) : type(type), serverFd(serverFd), clientFd(clientFd) {}
 } EventInfo;
 
 class Kqueue {
@@ -37,6 +39,7 @@ public:
 	~Kqueue();
 
 	void addEvent(int fd, int eventType, int serverFd);
+	void addEvent(int fd, int eventType, int clientFd, int serverFd);
 	void removeEvent(int fd, int filter);
 	struct kevent* pollEvents();
 };

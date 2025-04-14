@@ -2,7 +2,7 @@
 
 CgiHandler::~CgiHandler() {}
 
-CgiHandler::CgiHandler(Kqueue& kqueue) : kqueue_(kqueue), cgiExecuter_() {}
+CgiHandler::CgiHandler(int serverFd, Kqueue& kqueue) : serverFd_(serverFd), kqueue_(kqueue), cgiExecuter_() {}
 
 std::string CgiHandler::requestTypeToString(RequestType type) {
     switch (type) {
@@ -25,5 +25,5 @@ void CgiHandler::processCgiRequest(const Request& request, int clientFd, RouteRe
     if (outputFd < 0) {
         throw std::runtime_error("Failed to get valid output file descriptor from CgiExecuter");
     }
-    kqueue_.addEvent(outputFd, KQUEUE_EVENT::CGI_RESPONSE, clientFd);
+    kqueue_.addEvent(outputFd, KQUEUE_EVENT::CGI_RESPONSE, clientFd, serverFd_);
 }

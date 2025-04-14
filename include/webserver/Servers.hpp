@@ -30,6 +30,7 @@ public:
 	int connectClient(int serverFd);
 	int processRequest(int serverFd, int clientFd);
 	int processResponse(int serverFd, int clientFd);
+	int processCgiResponse(int serverFd, int clientFd, int cgiFd);
 };
 
 

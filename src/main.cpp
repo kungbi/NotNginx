@@ -49,8 +49,8 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 		ServerConfig* serverConfig = *it;
 		Socket* serverSocket = new Socket(serverConfig->getHost(), serverConfig->getPort());
 		Router* router = new Router(*serverConfig);
-		CgiHandler* cgiHandler = new CgiHandler(*kqueue);
-		RequestHandler* requestHandler = new RequestHandler(*router, *cgiHandler);
+		CgiHandler* cgiHandler = new CgiHandler(serverSocket->getSocketFd(), *kqueue);
+		RequestHandler* requestHandler = new RequestHandler(serverSocket->getSocketFd(), *router, *cgiHandler);
 		Server* server = servers->createServer(*serverSocket, *serverConfig, *kqueue, *requestHandler);
 		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);

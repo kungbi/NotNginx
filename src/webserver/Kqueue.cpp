@@ -50,6 +50,19 @@ void Kqueue::addEvent(int fd, int eventType, int serverFd) {
 	std::cout << "FD: " << fd << " added with filter: " << filter << std::endl;
 }
 
+void Kqueue::addEvent(int fd, int eventType, int clientFd, int serverFd) {
+	int filter = getFilter(eventType);
+	struct kevent event;
+	EventInfo* eventInfo = new EventInfo(eventType, serverFd, clientFd);
+
+	EV_SET(&event, fd, filter, EV_ADD | EV_ENABLE, 0, 0, eventInfo);
+	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
+		throw std::runtime_error("Failed to add FD to kqueue");
+	}
+
+	std::cout << "FD: " << fd << " added with filter: " << filter << std::endl;
+}
+
 void Kqueue::removeEvent(int fd, int filter) {
 	struct kevent event;
 	EV_SET(&event, fd, filter, EV_DELETE, 0, 0, nullptr);

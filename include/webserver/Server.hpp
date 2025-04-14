@@ -45,6 +45,7 @@ public:
 	int acceptClient();
 	int handleRequest(int clientFd);
 	int handleResponse(int clientFd);
+	int handleCgiResponse(int cgiFd, int clientFd);
 	void closeConnection(int clientFd);
 	void handleError(int clientFd, int errorCode);
 };

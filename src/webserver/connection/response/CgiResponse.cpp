@@ -8,5 +8,17 @@ CgiResponse::CgiResponse(const std::string& response) {
 
 
 std::string CgiResponse::getResponse(void) {
-	return cgiResponse_;
+	std::ostringstream oss;
+
+	// Status Line
+	oss << "HTTP/1.1 200" << "\r\n";
+	oss << "Content-Type: text/html\r\n";
+	oss << "Content-Length: " << cgiResponse_.size() << "\r\n";
+	oss << "Connection: close\r\n";
+	oss << "\r\n";
+
+	// Body
+	oss << "\r\n" <<  cgiResponse_;
+
+	return oss.str();
 }
