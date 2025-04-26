@@ -85,7 +85,7 @@ int Server::handleResponse(int clientFd) {
 	std::cout << "Handling response for client FD: " << clientFd << std::endl;
 	if (!this->connections_.hasResponse(clientFd)) {
 		std::cout << "No response found for client FD: " << clientFd << std::endl;
-		throw std::runtime_error("No response found for client FD");
+		throw InternalServerError("No response found for client FD");
 	}
 
 	Response* response = this->connections_.getResponse(clientFd);
