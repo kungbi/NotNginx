@@ -47,3 +47,12 @@ std::string LocationConfig::getPath() const {
 bool LocationConfig::isAutoindexEnabled() const {
 	return autoindex;
 }
+
+bool LocationConfig::isValidMethod(const std::string& method) const {
+	for (size_t i = 0; i < allowMethod.size(); i++) {
+		if (method == allowMethod[i]) {
+			return true;
+		}
+	}
+	return false;
+}

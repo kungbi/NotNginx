@@ -28,6 +28,8 @@ public:
 		const std::string& path // Ensure const references
 	);
 
+	bool isValidMethod(const std::string& method) const;
+
 	bool isAutoindex() const;
 	std::string getPattern() const;
 	std::string getRoot() const;

@@ -81,6 +81,10 @@ RouteResult Router::routeRequest(const Request& request) const {
 			continue;
 		}
 
+		if (!isValidMethod(request.getRequestType(), location)) {
+			throw MethodNotAllowedError("Error: Method not allowed for this location.");
+		}
+
 		std::string relativePath = getRelativePath(target, pattern);
 
 		if (!fileName.empty() && relativePath.size() >= fileName.size() &&
@@ -128,4 +132,18 @@ RouteResult Router::routeRequest(const Request& request) const {
 	}
 
 	throw std::runtime_error("Error: No matching location found for target: " + target);
+}
+
+bool Router::isValidMethod(const RequestType& method, const LocationConfig& location) const {
+	if (method == GET)
+		return location.isValidMethod("GET");
+	if (method == POST)
+		return location.isValidMethod("POST");
+	if (method == PUT)
+		return location.isValidMethod("PUT");
+	if (method == PATCH)
+		return location.isValidMethod("PATCH");
+	if (method == DELETE)
+		return location.isValidMethod("DELETE");
+	return false;
 }
