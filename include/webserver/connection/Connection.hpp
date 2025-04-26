@@ -19,6 +19,8 @@ public:
 	~Connection(void);
 
 	// request handling
+	size_t getOriginalRequestSize(void) const;
+	size_t getBodySize(void) const;
 	void appendRequestData(const char* data, size_t length);
 	bool hasRequest(void) const;
 	std::string getRequest(void);

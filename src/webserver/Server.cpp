@@ -35,6 +35,10 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 
 	this->connections_.appendRequestData(clientFd, buffer, bytesRead);
 
+	if (this->serverConfig_.getClientMaxBodySize() < this->connections_.getBodySize(clientFd)) {
+		throw RequestEntityTooLargeError("Request size exceeds max body size");
+	}
+
 	if (this->connections_.hasRequest(clientFd)) {
 		Request request = RequestParser::parseRequestHeader(this->connections_.getRequest(clientFd));
 		Response* response = requestHandler_.dispatch(request, clientFd);

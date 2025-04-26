@@ -80,6 +80,16 @@ public:
 	}
 };
 
+class RequestEntityTooLargeError : public HttpException {
+public:
+	explicit RequestEntityTooLargeError(const std::string& message)
+		: HttpException(message) {}
+
+	int getStatusCode() const {
+		return 413;
+	}
+};
+
 // Add more custom exceptions as needed, inheriting from HttpException
 
 #endif // HTTP_EXCEPTIONS_HPP

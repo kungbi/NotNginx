@@ -76,8 +76,6 @@ HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 		} else if (key == "Connection") {
 			result.connection = value;
 		} else if (key == "Content-Length") {
-			std::cout << "contentLength: " << value << std::endl;
-			std::cout << "contentLength: " << std::stoi(value) << std::endl;
 			result.contentLength = std::stoi(value);
 		} else if (key == "Accept") {
 			result.accept = value;

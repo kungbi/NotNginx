@@ -21,6 +21,8 @@ public:
 	bool hasConnection(int fd) const;
 	
 	// Request handling
+	size_t getOriginalRequestSize(int fd) const;
+	size_t getBodySize(int fd) const;
 	bool hasRequest(int fd) const;
 	void appendRequestData(int fd, const char* data, size_t length);
 	std::string getRequest(int fd);
