@@ -108,7 +108,7 @@ RouteResult Router::routeRequest(const Request& request) const {
 				}
 			}
 			if (resolvedFileName.empty() && !location.isAutoindexEnabled()) {
-				throw ForbiddenError("Error: No index file found and autoindex is disabled.");
+				throw NotFoundError("Error: No index file found and autoindex is disabled.");
 			}
 		} else {
 			fileExtension = getExtension(fileName);
