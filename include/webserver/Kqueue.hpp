@@ -25,18 +25,17 @@ typedef struct EventInfo {
 	EventInfo(int type, int serverFd, int clientFd) : type(type), serverFd(serverFd), clientFd(clientFd) {}
 } EventInfo;
 
+const int MAX_EVENTS = 1024;
 class Kqueue {
 private:
 	int kqueueFd_;
-	int maxEvents_;
 
 	void initialize();
 	int getFilter(int eventType);
-	Kqueue(void);
 
 public:
-	Kqueue(int maxEvents);
-	~Kqueue();
+	Kqueue(void);
+	~Kqueue(void);
 
 	void addEvent(int fd, int eventType, int serverFd);
 	void addEvent(int fd, int eventType, int clientFd, int serverFd);

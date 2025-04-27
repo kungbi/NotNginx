@@ -14,7 +14,6 @@ void ConfigParser::tokenize(std::string config_data)
 IConfigContext* ConfigParser::parseConfig()
 {
     IConfigContext* root = new IConfigContext(nullptr, 0);
-    IConfigContext* rootContext = nullptr; // 최종적으로 반환할 root.
 
     try
     {

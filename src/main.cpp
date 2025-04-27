@@ -41,7 +41,7 @@ void leak() {
 }
 
 Webserver* dependencyInjection(WebserverConfig* config) {
-	Kqueue* kqueue = new Kqueue(1024);
+	Kqueue* kqueue = new Kqueue();
 	Servers* servers = new Servers(*kqueue);
 
 	const std::vector<ServerConfig*>* serverConfigs = config->getHTTPConfig()->getServers();
@@ -50,7 +50,7 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 		Socket* serverSocket = new Socket(serverConfig->getHost(), serverConfig->getPort());
 		Router* router = new Router(*serverConfig);
 		CgiHandler* cgiHandler = new CgiHandler(serverSocket->getSocketFd(), *kqueue);
-		RequestHandler* requestHandler = new RequestHandler(serverSocket->getSocketFd(), *router, *cgiHandler);
+		RequestHandler* requestHandler = new RequestHandler(*router, *cgiHandler);
 		Server* server = servers->createServer(*serverSocket, *serverConfig, *kqueue, *requestHandler);
 		kqueue->addEvent(server->getSocketFd(), KQUEUE_EVENT::SERVER, server->getSocketFd());
 		servers->addServer(*server);

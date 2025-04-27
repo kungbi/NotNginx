@@ -1,6 +1,6 @@
 #include "RequestHandler.hpp"
 
-RequestHandler::RequestHandler(int serverFd, Router& router, CgiHandler& cgiHandler): serverFd_(serverFd), router_(router), cgiHandler_(cgiHandler) {}
+RequestHandler::RequestHandler(Router& router, CgiHandler& cgiHandler): router_(router), cgiHandler_(cgiHandler) {}
 
 RequestHandler::~RequestHandler() {}
 

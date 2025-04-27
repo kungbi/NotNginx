@@ -9,7 +9,7 @@ void Kqueue::initialize() {
 	std::cout << "Kqueue initialized with FD: " << kqueueFd_ << std::endl;
 }
 
-Kqueue::Kqueue(int maxEvents) : maxEvents_(maxEvents) {
+Kqueue::Kqueue() {
 	initialize();
 }
 
@@ -76,7 +76,7 @@ void Kqueue::removeEvent(int fd, int filter) {
 static const int TIMEOUT_MS = -1;
 
 struct kevent* Kqueue::pollEvents() {
-	struct kevent events[maxEvents_];
+	struct kevent events[MAX_EVENTS];
 	struct timespec timeout;
 	struct timespec *timeoutPtr = nullptr;
 
@@ -86,7 +86,7 @@ struct kevent* Kqueue::pollEvents() {
 		timeoutPtr = &timeout;
 	}
 
-	int eventCount = kevent(kqueueFd_, nullptr, 0, events, maxEvents_, timeoutPtr);
+	int eventCount = kevent(kqueueFd_, nullptr, 0, events, MAX_EVENTS, timeoutPtr);
 	if (eventCount == -1) {
 		perror("Error polling kqueue events");
 		throw std::runtime_error("Error polling kqueue events");
