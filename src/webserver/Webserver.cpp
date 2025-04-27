@@ -5,8 +5,8 @@
 Webserver::Webserver(Kqueue& kqueue, Servers& servers, WebserverConfig& config)
 	: kqueue_(kqueue), servers_(servers), config_(config) {}
 	
-void Webserver::connectClient(struct kevent& event) {
-	int serverFd = ((EventInfo *) event.udata)->serverFd;
+void Webserver::connectClient(EventInfo *eventInfo) {
+	int serverFd = eventInfo->serverFd;
 	int clientFd = servers_.connectClient(serverFd);
 
 	if (clientFd == -1)  {
@@ -16,59 +16,48 @@ void Webserver::connectClient(struct kevent& event) {
 	kqueue_.addEvent(clientFd, KQUEUE_EVENT::REQUEST, serverFd);
 }
 
-int Webserver::processClientRequest(struct kevent& event) {
-	int serverFd = ((EventInfo *) event.udata)->serverFd;
-	int clientFd = event.ident;
+int Webserver::processClientRequest(int fd, EventInfo *eventInfo) {
+	int serverFd = eventInfo->serverFd;
+	int clientFd = fd;
 
 	return servers_.processRequest(serverFd, clientFd);
 }
 
-int Webserver::precessClientResponse(struct kevent& event) {
-	int serverFd = ((EventInfo *) event.udata)->serverFd;
-	int clientFd = event.ident;
+int Webserver::processClientResponse(int fd, EventInfo *eventInfo) {
+	int serverFd = eventInfo->serverFd;
+	int clientFd = fd;
 
 	return servers_.processResponse(serverFd, clientFd);
 }
 
-int Webserver::processCgiResponse(struct kevent& event) {
-    int fd = event.ident;
-    EventInfo* eventInfo = (EventInfo *) event.udata;
+int Webserver::processCgiResponse(int fd, EventInfo *eventInfo) {
 	int serverFd = eventInfo->serverFd;
 	int clientFd = eventInfo->clientFd;
 
 	return this->servers_.processCgiResponse(serverFd, clientFd, fd);
 }
 
-void Webserver::processEvents(struct kevent& event) {
-	int fd = event.ident;
-	EventInfo* eventInfo = (EventInfo *) event.udata;
-
+void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 	std::cout << "Processing event for FD: " << fd << std::endl;
 
 	if (eventInfo->type == KQUEUE_EVENT::SERVER) {
 		std::cout << "Server event." << std::endl;
-		connectClient(event);
+		connectClient(eventInfo);
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::REQUEST) {
 		std::cout << "Request event." << std::endl;
-		if (processClientRequest(event) == 0) {
-			delete eventInfo;
-		}
+		processClientRequest(fd, eventInfo);
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 		std::cout << "Response event." << std::endl;
-		if (precessClientResponse(event) == 0) {
-			delete eventInfo;
-		}
+		processClientResponse(fd, eventInfo);
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::CGI_RESPONSE) {
         std::cout << "CGI response event." << std::endl;
-        if (processCgiResponse(event) == 0) {
-            delete eventInfo;
-        }
+        processCgiResponse(fd, eventInfo);
     }
 }
 
@@ -77,9 +66,8 @@ void Webserver::start() {
 		struct kevent* event = kqueue_.pollEvents();
 		int fd = event->ident;
 		EventInfo* eventInfo = (EventInfo *) event->udata;
-
 		try {
-			processEvents(*event);
+			processEvents(fd, eventInfo);
 		} catch (const HttpException& e) {
 			std::cerr << "HTTP Exception: " << e.what() << std::endl;
 			std::cerr << "Status Code: " << e.getStatusCode() << std::endl;
@@ -87,6 +75,8 @@ void Webserver::start() {
 			server->handleError(fd, e.getStatusCode());
 		}
 
+		if (eventInfo->type != KQUEUE_EVENT::SERVER)
+			delete eventInfo;
 		delete[] event;
 	}
 }

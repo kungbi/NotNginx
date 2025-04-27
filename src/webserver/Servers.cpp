@@ -87,6 +87,7 @@ int Servers::processResponse(int serverFd, int clientFd) {
 
 	server->handleResponse(clientFd);
 	server->closeConnection(clientFd);
+	// kqueue_.removeEvent(clientFd, EVFILT_WRITE);
 	return 0;
 }
 

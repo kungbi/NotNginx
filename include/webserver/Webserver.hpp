@@ -15,11 +15,11 @@ private:
 	Servers& servers_;
 	WebserverConfig& config_;
 
-	void processEvents(struct kevent& event);
-	void connectClient(struct kevent& event);
-	int processClientRequest(struct kevent& event);
-	int precessClientResponse(struct kevent& event);
-	int processCgiResponse(struct kevent& event);
+	void processEvents(int fd, EventInfo* eventInfo);
+	void connectClient(EventInfo* eventInfo);
+	int processClientRequest(int fd, EventInfo* eventInfo);
+	int processClientResponse(int fd, EventInfo* eventInfo);
+	int processCgiResponse(int fd, EventInfo *eventInfo);
 
 	Webserver(void);
 
