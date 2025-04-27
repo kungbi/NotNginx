@@ -55,9 +55,7 @@ void CgiExecuter::executeChild(int writeFd, const CgiRequestData& requestData) {
 	       requestData.routeResult.filePath.c_str(),
 	       NULL);
 
-	// execlp 실패 시
-	perror("execlp failed");
-	exit(1);
+	throw InternalServerError("Failed to execute CGI script");
 }
 
 void CgiExecuter::setupBodyPipe(const std::string& requestBody) {
