@@ -10,32 +10,38 @@ int CgiExecuter::run(RouteResult routeResult, const std::string& queryString,
                      const std::string& requestMethod, const std::string& requestBody, const std::string& contentType) {
 	CgiRequestData requestData(routeResult, queryString, requestMethod, requestBody, contentType);
 	
-	int pipefd[2];
-	if (pipe(pipefd) == -1) {
-		throw std::runtime_error("Failed to create pipe");
+	int stdinPipe[2];
+	int stdoutPipe[2];
+	if (pipe(stdinPipe) == -1 || pipe(stdoutPipe) == -1) {
+		throw std::runtime_error("Failed to create pipes");
 	}
 
 	pid_t pid = fork();
 	if (pid == -1) {
-		throw std::runtime_error("Failed to fork CGI process");
+		throw std::runtime_error("Failed to fork");
 	}
 
 	if (pid == 0) {
 		// child
-		dup2(pipefd[0], STDIN_FILENO); // read-end를 stdin으로 복제
-		dup2(pipefd[1], STDOUT_FILENO); // stdout을 write-end로 복제
-		close(pipefd[0]);
-		close(pipefd[1]);
-		executeChild(requestData); // executeChild에서는 이제 pipefd 넘길 필요 없음
-		exit(1);
-	}
+		close(stdinPipe[1]); // 부모가 쓰는 쪽 닫기
+		dup2(stdinPipe[0], STDIN_FILENO);
+		close(stdinPipe[0]);
 
+		close(stdoutPipe[0]); // 부모가 읽는 쪽 닫기
+		dup2(stdoutPipe[1], STDOUT_FILENO);
+		close(stdoutPipe[1]);
+
+		executeChild(requestData);
+		exit(1);
+	} 
 	// parent
-    // close(pipefd[0]); // read-end 닫기
-	std::cout << "body:" << requestBody << std::endl;
-    write(pipefd[1], requestBody.data(), requestBody.size()); // 부모가 직접 body를 write
-    close(pipefd[1]); // 다 쓰고 닫아야 함
-    return pipefd[0]; // stdout 읽는 쪽
+	close(stdinPipe[0]);  // 자식이 읽는 쪽 닫기
+	close(stdoutPipe[1]); // 자식이 쓰는 쪽 닫기
+
+	write(stdinPipe[1], requestBody.data(), requestBody.size());
+	close(stdinPipe[1]); // body 다 쓰고 닫기
+
+	return stdoutPipe[0]; // CGI 응답 읽기용 fd 리턴
 }
 
 void CgiExecuter::executeChild(const CgiRequestData& requestData) {
