@@ -42,6 +42,7 @@ private:
 	bool exists(const std::string& path) const;
 	std::string getExtension(const std::string& fileName) const;
 	bool isValidMethod(const RequestType& method, const LocationConfig& location) const;
+	bool isDirectory(const std::string& path) const;
 
 public:
 	Router(const ServerConfig& serverConfig);

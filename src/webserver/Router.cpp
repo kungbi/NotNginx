@@ -20,8 +20,18 @@ bool Router::compareLength(const LocationPair& a, const LocationPair& b) {
 }
 
 bool Router::matchPattern(const std::string& target, const std::string& pattern) const {
-	return target.find(pattern) == 0;
+    if (pattern == "/")
+        return true; // "/"는 무조건 다 매칭
+
+    if (target.find(pattern) != 0)
+        return false;
+
+    if (target.size() == pattern.size() || target[pattern.size()] == '/')
+        return true;
+
+    return false;
 }
+
 
 std::string Router::getRelativePath(const std::string& target, const std::string& pattern) const {
 	std::string relativePath = target.substr(pattern.size());
@@ -103,6 +113,11 @@ RouteResult Router::routeRequest(const Request& request) const {
 			throw NotFoundError("Error: File not found at " + getFilePath(location, relativePath, ""));
 		}
 
+		std::cout << "File path: " << getFilePath(location, relativePath, fileName) << " " << fileName.empty() << std::endl;
+		if (fileName.empty() && !isDirectory(getFilePath(location, relativePath, fileName))) {
+			return createResult(location, getFilePath(location, relativePath, ""), "nothing");
+		}
+
 		std::string resolvedFileName = fileName;
 		std::string fileExtension;
 		if (fileName.empty()) {
@@ -150,4 +165,12 @@ bool Router::isValidMethod(const RequestType& method, const LocationConfig& loca
 	if (method == DELETE)
 		return location.isValidMethod("DELETE");
 	return false;
+}
+
+bool Router::isDirectory(const std::string& path) const {
+    struct stat pathStat;
+    if (stat(path.c_str(), &pathStat) != 0) {
+        return false; // 존재하지 않거나 에러
+    }
+    return S_ISDIR(pathStat.st_mode);
 }
