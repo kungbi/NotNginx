@@ -7,8 +7,8 @@ CgiExecuter::CgiExecuter() {
 CgiExecuter::~CgiExecuter() {}
 
 int CgiExecuter::run(RouteResult routeResult, const std::string& queryString,
-                     const std::string& requestMethod, const std::string& requestBody) {
-	CgiRequestData requestData(routeResult, queryString, requestMethod, requestBody);
+                     const std::string& requestMethod, const std::string& requestBody, const std::string& contentType) {
+	CgiRequestData requestData(routeResult, queryString, requestMethod, requestBody, contentType);
 	
 	int pipefd[2];
 	if (pipe(pipefd) == -1) {
@@ -21,42 +21,60 @@ int CgiExecuter::run(RouteResult routeResult, const std::string& queryString,
 	}
 
 	if (pid == 0) {
-		// Child process
-		close(pipefd[0]); // 부모가 읽는 쪽 닫기
-		executeChild(pipefd[1], requestData);
-		// 절대 여기까지 오면 안 됨
+		// child
+		dup2(pipefd[0], STDIN_FILENO); // read-end를 stdin으로 복제
+		dup2(pipefd[1], STDOUT_FILENO); // stdout을 write-end로 복제
+		close(pipefd[0]);
+		close(pipefd[1]);
+		executeChild(requestData); // executeChild에서는 이제 pipefd 넘길 필요 없음
 		exit(1);
 	}
 
-	// Parent process
-	close(pipefd[1]); // 자식이 쓰는 쪽 닫기
-	return pipefd[0]; // 읽기용 fd 리턴
+	// parent
+    // close(pipefd[0]); // read-end 닫기
+	std::cout << "body:" << requestBody << std::endl;
+    write(pipefd[1], requestBody.data(), requestBody.size()); // 부모가 직접 body를 write
+    close(pipefd[1]); // 다 쓰고 닫아야 함
+    return pipefd[0]; // stdout 읽는 쪽
 }
 
-void CgiExecuter::executeChild(int writeFd, const CgiRequestData& requestData) {
-	// stdout -> writeFd 로 리다이렉션
-	if (dup2(writeFd, STDOUT_FILENO) == -1) {
-		perror("dup2 to STDOUT failed");
-		exit(1);
-	}
-	close(writeFd);
+void CgiExecuter::executeChild(const CgiRequestData& requestData) {
+    // 환경변수 세팅
+    setEnvVariables(requestData);
 
-	// body를 stdin으로 넘김
-	if (isMethodWithBody(requestData.requestMethod)) {
-		setupBodyPipe(requestData.requestBody);
-	}
+    // CGI 실행
+    execlp(requestData.routeResult.cgiInterpreter.c_str(),
+           requestData.routeResult.cgiInterpreter.c_str(),
+           requestData.routeResult.filePath.c_str(),
+           NULL);
 
-	// 환경변수 세팅
-	setEnvVariables(requestData);
+    throw InternalServerError("Failed to execute CGI script");
+}
+
+// void CgiExecuter::executeChild(int writeFd, const CgiRequestData& requestData) {
+// 	// stdout -> writeFd 로 리다이렉션
+// 	if (dup2(writeFd, STDOUT_FILENO) == -1) {
+// 		perror("dup2 to STDOUT failed");
+// 		exit(1);
+// 	}
+// 	close(writeFd);
+
+// 	// body를 stdin으로 넘김
+// 	if (isMethodWithBody(requestData.requestMethod)) {
+// 		setupBodyPipe(requestData.requestBody);
+// 	}
+
+// 	// 환경변수 세팅
+// 	setEnvVariables(requestData);
 	
-	// CGI 실행
-	execlp(requestData.routeResult.cgiInterpreter.c_str(),
-	       requestData.routeResult.cgiInterpreter.c_str(),
-	       requestData.routeResult.filePath.c_str(),
-	       NULL);
+// 	// CGI 실행
+// 	execlp(requestData.routeResult.cgiInterpreter.c_str(),
+// 	       requestData.routeResult.cgiInterpreter.c_str(),
+// 	       requestData.routeResult.filePath.c_str(),
+// 	       NULL);
 
-	throw InternalServerError("Failed to execute CGI script");
-}
+// 	throw InternalServerError("Failed to execute CGI script");
+// }
 
 void CgiExecuter::setupBodyPipe(const std::string& requestBody) {
 	int inputPipe[2];
@@ -86,6 +104,9 @@ void CgiExecuter::setEnvVariables(const CgiRequestData& requestData) {
 	if (isMethodWithBody(requestData.requestMethod)) {
 		std::string contentLength = std::to_string(requestData.requestBody.size());
 		setenv("CONTENT_LENGTH", contentLength.c_str(), 1);
+	}
+	if (!requestData.contentType.empty()) {
+		setenv("CONTENT_TYPE", requestData.contentType.c_str(), 1);
 	}
 }
 

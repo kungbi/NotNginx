@@ -88,7 +88,10 @@ struct kevent* Kqueue::pollEvents() {
 
 	int eventCount = kevent(kqueueFd_, nullptr, 0, events, MAX_EVENTS, timeoutPtr);
 	if (eventCount == -1) {
-		perror("Error polling kqueue events");
+		if (errno == EINTR) {
+        	// 시그널 때문에 인터럽트됐으면 무시하고 다시 kevent
+			return pollEvents();
+		}
 		throw std::runtime_error("Error polling kqueue events");
 	}
 	if (eventCount == 0) {

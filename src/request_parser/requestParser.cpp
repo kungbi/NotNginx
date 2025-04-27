@@ -8,10 +8,21 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 		throw std::invalid_argument("originalRequest is empty!");
 	}
 
-	std::istringstream stream(originalRequest);
+	// 1️⃣ 헤더와 바디를 분리
+	size_t headerEnd = originalRequest.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
+		throw std::invalid_argument("Invalid request: missing header-body separator");
+	}
+
+	std::string headerPart = originalRequest.substr(0, headerEnd);
+	std::string bodyPart = originalRequest.substr(headerEnd + 4); // "\r\n\r\n" 다음부터 body 시작
+	std::cout << "Header Part: " << headerPart << std::endl;
+	std::cout << "Body Part: " << bodyPart << std::endl;
+
+	std::istringstream stream(headerPart);
 	std::string line;
 
-	// 1️⃣ 요청 라인 파싱
+	// 2️⃣ 요청 라인 파싱
 	if (!std::getline(stream, line) || line.empty()) {
 		throw std::invalid_argument("Invalid request line");
 	}
@@ -25,11 +36,14 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 
 	UriComponents uri = parseUri(target);
 
-	// 2️⃣ 헤더 파싱
+	// 3️⃣ 헤더 파싱
 	HeaderResult headerResult = parseHeaders(stream);
 
-	// 3️⃣ 바디 파싱
-	std::string body = parseBody(stream, headerResult.contentLength);
+	// 4️⃣ body는 따로 잘라온 bodyPart 그대로 사용
+	std::string body = bodyPart;
+	if (body.size() > headerResult.contentLength) {
+		body.resize(headerResult.contentLength); // 혹시 남아있으면 자르기
+	}
 
 	RequestType requestType =
 		(method == "GET") ? GET :
@@ -37,11 +51,12 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 		(method == "PUT") ? PUT :
 		(method == "PATCH") ? PATCH : DELETE;
 
-	return Request(requestType, version, headerResult.host, target, uri.query, 
-				   uri.filename, uri.extension, uri.path, headerResult.port, 
-				   headerResult.connection, headerResult.contentLength, 
+	return Request(requestType, version, headerResult.host, target, uri.query,
+				   uri.filename, uri.extension, uri.path, headerResult.port,
+				   headerResult.connection, headerResult.contentLength,
 				   headerResult.accept, body, headerResult.contentType);
 }
+
 
 HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 	HeaderResult result;

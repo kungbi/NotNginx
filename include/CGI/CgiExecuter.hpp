@@ -29,16 +29,17 @@ struct CgiRequestData {
 	std::string queryString;
 	std::string requestMethod;
 	std::string requestBody;
+	std::string contentType;
 	
-	CgiRequestData(RouteResult routeResult, const std::string& query, const std::string& method, const std::string& body)
-		: routeResult(routeResult) ,queryString(query), requestMethod(method), requestBody(body) {}
+	CgiRequestData(RouteResult routeResult, const std::string& query, const std::string& method, const std::string& body, const std::string& contentType)
+		: routeResult(routeResult) ,queryString(query), requestMethod(method), requestBody(body), contentType(contentType) {}
 };
 
 class CgiExecuter {
 private:
 	void setEnvVariables(const CgiRequestData& requestData); // 환경 변수 설정 (요청 데이터 구조체 전달)
 	void setupBodyPipe(const std::string& requestBody); // 본문 데이터를 처리하는 파이프 설정
-	void executeChild(int writeFd, const CgiRequestData& requestData); // 자식 프로세스 실행 (요청 데이터 전달)
+	void executeChild(const CgiRequestData& requestData);
 	bool isMethodWithBody(const std::string& method) const;
 
 	static void handleSigchld(int signo); // `SIGCHLD` 핸들러
@@ -52,6 +53,7 @@ public:
 		RouteResult routeResult,
 		const std::string& queryString,
 		const std::string& requestMethod,
-		const std::string& requestBody
+		const std::string& requestBody,
+		const std::string& contentType
 	);
 };

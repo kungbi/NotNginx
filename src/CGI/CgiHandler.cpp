@@ -19,7 +19,7 @@ std::string CgiHandler::requestTypeToString(RequestType type) {
 void CgiHandler::processCgiRequest(const Request& request, int clientFd, RouteResult routeResult) {
 	std::string requestMethod = requestTypeToString(request.getRequestType());
 
-	int outputFd = cgiExecuter_.run(routeResult, request.getQuery(), requestMethod, request.getBody());
+	int outputFd = cgiExecuter_.run(routeResult, request.getQuery(), requestMethod, request.getBody(), request.getContentType());
 	std::cout << "CGI Executer outputFd: " << outputFd << std::endl;
 	
 	if (outputFd < 0) {
