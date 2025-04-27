@@ -11,7 +11,7 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 			.setProtocolVersion("HTTP/1.1")
 			.setStatusCode(statusCode)
 			.setReasonPhrase(getReasonPhrase(statusCode))
-			.setLocation("http://localhost:8080" + path)
+			.setLocation(path)
 			.setServer("Server")
 			.setContentType("text/plain")
 			.setConnection("close")

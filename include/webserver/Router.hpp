@@ -21,9 +21,10 @@ struct RouteResult {
 	std::string filePath;
 	std::string cgiInterpreter;
 	std::string fileExtension;
+	int statusCode;
 
-	RouteResult(RouteType routeType, const std::string& path, const std::string& interpreter = "", const std::string& extension = "")
-		: type(routeType), filePath(path), cgiInterpreter(interpreter), fileExtension(extension) {}
+	RouteResult(RouteType routeType, const std::string& path, const std::string& interpreter = "", const std::string& extension = "", int code = 200)
+		: type(routeType), filePath(path), cgiInterpreter(interpreter), fileExtension(extension), statusCode(code) {}
 };
 
 class Router {

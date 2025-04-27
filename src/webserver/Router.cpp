@@ -54,9 +54,9 @@ std::string Router::getFilePath(const LocationConfig& location, const std::strin
 
 RouteResult Router::createResult(const LocationConfig& location, const std::string& filePath, const std::string& fileExtension) const {
 	if (!location.getCgiInterpreter().empty()) {
-		return RouteResult(CGI_RESOURCE, filePath, location.getCgiInterpreter(), fileExtension);
+		return RouteResult(CGI_RESOURCE, filePath, location.getCgiInterpreter(), fileExtension, 200);
 	}
-	return RouteResult(STATIC_RESOURCE, filePath, "", fileExtension);
+	return RouteResult(STATIC_RESOURCE, filePath, "", fileExtension, 200);
 }
 
 std::string Router::getIndex(const LocationConfig& location) const {
@@ -97,7 +97,7 @@ RouteResult Router::routeRequest(const Request& request) const {
 
 		if (location.isRedirectEnabled()) {
 			std::pair<int, std::string> redirect = location.getRedirect();
-			return RouteResult(REDIRECT_RESOURCE, redirect.second, "");
+			return RouteResult(REDIRECT_RESOURCE, redirect.second, "", "", redirect.first);
 		}
 
 		std::string relativePath = getRelativePath(target, pattern);
