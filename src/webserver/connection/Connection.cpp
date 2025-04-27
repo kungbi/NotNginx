@@ -79,11 +79,40 @@ std::string Connection::getRequest(void) {
 		throw std::runtime_error("No request available");
 	}
 
-	size_t pos = this->originalRequest_.find("\r\n\r\n");
-	std::string request = this->originalRequest_.substr(0, pos + 4);
-	this->originalRequest_ = this->originalRequest_.substr(pos + 4);
+	size_t headerEnd = this->originalRequest_.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
+		throw std::runtime_error("No header end found");
+	}
+
+	size_t bodyStart = headerEnd + 4;
+	size_t totalRequestSize = bodyStart;
+
+	size_t contentLengthPos = this->originalRequest_.find("Content-Length:");
+	if (contentLengthPos != std::string::npos) {
+		size_t lengthStart = contentLengthPos + std::string("Content-Length:").length();
+		while (lengthStart < this->originalRequest_.size() && (this->originalRequest_[lengthStart] == ' ' || this->originalRequest_[lengthStart] == '\t')) {
+			++lengthStart;
+		}
+		size_t lengthEnd = this->originalRequest_.find("\r\n", lengthStart);
+		if (lengthEnd == std::string::npos) {
+			throw std::runtime_error("Invalid Content-Length header");
+		}
+
+		std::string lengthStr = this->originalRequest_.substr(lengthStart, lengthEnd - lengthStart);
+		int contentLength = std::atoi(lengthStr.c_str());
+		if (contentLength < 0) {
+			throw std::runtime_error("Invalid Content-Length value");
+		}
+
+		totalRequestSize += static_cast<size_t>(contentLength);
+	}
+
+	// 이제 헤더 + body를 합친 걸 리턴
+	std::string request = this->originalRequest_.substr(0, totalRequestSize);
+	this->originalRequest_ = this->originalRequest_.substr(totalRequestSize);
 	return request;
 }
+
 
 void Connection::addResponse(Response& response) {
 	this->responses_.addResponse(response);

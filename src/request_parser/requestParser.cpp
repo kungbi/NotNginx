@@ -9,6 +9,7 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 	}
 
 	// 1️⃣ 헤더와 바디를 분리
+	std::cout << "originalRequest: " << originalRequest << std::endl;
 	size_t headerEnd = originalRequest.find("\r\n\r\n");
 	if (headerEnd == std::string::npos) {
 		throw std::invalid_argument("Invalid request: missing header-body separator");
