@@ -7,13 +7,14 @@
 # include "StaticResourceResponse.hpp"
 # include "MimeTypes.hpp"
 # include "HttpExceptions.hpp"
+# include "ResponseReason.hpp"
 
 class StaticResourceHandler {
 private:
 	StaticResourceHandler(void);
 
 public:
-	static Response* execute(std::string path, std::string fileExtension);
+	static Response* execute(std::string path, std::string fileExtension, int statusCode);
 };
 
 #endif

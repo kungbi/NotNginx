@@ -12,7 +12,8 @@
 
 enum RouteType {
 	STATIC_RESOURCE,
-	CGI_RESOURCE
+	CGI_RESOURCE,
+	REDIRECT_RESOURCE,
 };
 
 struct RouteResult {

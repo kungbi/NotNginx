@@ -11,6 +11,7 @@ StaticResourceResponse::StaticResourceResponse(
 	const std::string& contentType,
 	size_t contentLength,
 	const std::string& connection,
+	std::string location,
 	const std::string& body
 ) : protocolVersion_(protocolVersion),
 	statusCode_(statusCode),
@@ -20,6 +21,7 @@ StaticResourceResponse::StaticResourceResponse(
 	contentType_(contentType),
 	contentLength_(contentLength),
 	connection_(connection),
+	location_(location),
 	body_(body) {}
 
 std::string StaticResourceResponse::getResponse(void) {
@@ -34,6 +36,8 @@ std::string StaticResourceResponse::getResponse(void) {
 	oss << "Content-Type: " << contentType_ << "\r\n";
 	oss << "Content-Length: " << contentLength_ << "\r\n";
 	oss << "Connection: " << connection_ << "\r\n";
+	if (!location_.empty())
+		oss << "Location: " << location_ << "\r\n";
 
 	// Body
 	oss << "\r\n" <<  body_;
@@ -78,6 +82,11 @@ StaticResourceResponse::Builder& StaticResourceResponse::Builder::setBody(const 
 	return *this;
 }
 
+StaticResourceResponse::Builder& StaticResourceResponse::Builder::setLocation(const std::string& location) {
+	location_ = location;
+	return *this;
+}
+
 void StaticResourceResponse::Builder::validate(void) const {
 	if (protocolVersion_.empty()) 
 		throw std::invalid_argument("Protocol version must not be empty");
@@ -91,8 +100,8 @@ void StaticResourceResponse::Builder::validate(void) const {
 		throw std::invalid_argument("Content type must not be empty");
 	if (connection_.empty())
 		throw std::invalid_argument("Connection must not be empty");
-	if (body_.empty())
-		throw std::invalid_argument("Body must not be empty");
+	// if (body_.empty())
+	// 	throw std::invalid_argument("Body must not be empty");
 }
 
 StaticResourceResponse* StaticResourceResponse::Builder::build() const {
@@ -103,5 +112,5 @@ StaticResourceResponse* StaticResourceResponse::Builder::build() const {
 
 	size_t contentLength = body_.size();
 
-	return new StaticResourceResponse(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, body_);
+	return new StaticResourceResponse(protocolVersion_, statusCode_, reasonPhrase_, date, server_, contentType_, contentLength, connection_, location_, body_);
 }

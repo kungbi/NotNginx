@@ -2,9 +2,22 @@
 #include <iostream>
 #include <dirent.h>
 
-Response* StaticResourceHandler::execute(std::string path, std::string fileExtension) {
+Response* StaticResourceHandler::execute(std::string path, std::string fileExtension, int statusCode) {
 	std::cout << "path: " << path << std::endl;
 	std::cout << "fileExtension: " << fileExtension << std::endl;
+
+	if (statusCode / 100 == 3) {
+		return StaticResourceResponse::Builder()
+			.setProtocolVersion("HTTP/1.1")
+			.setStatusCode(statusCode)
+			.setReasonPhrase(getReasonPhrase(statusCode))
+			.setLocation("http://localhost:8080" + path)
+			.setServer("Server")
+			.setContentType("text/plain")
+			.setConnection("close")
+			.setBody("")
+			.build();
+	}
 
 	if (fileExtension.empty()) {
 		// Handle directory case
@@ -26,8 +39,8 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 
 		StaticResourceResponse* response = StaticResourceResponse::Builder()
 				.setProtocolVersion("HTTP/1.1")
-				.setStatusCode(200)
-				.setReasonPhrase("OK")
+				.setStatusCode(statusCode)
+				.setReasonPhrase(getReasonPhrase(statusCode))
 				.setServer("Server")
 				.setContentType("text/plain")
 				.setConnection("close")
@@ -50,8 +63,8 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 
 	StaticResourceResponse* response = StaticResourceResponse::Builder()
 			.setProtocolVersion("HTTP/1.1")
-			.setStatusCode(200)
-			.setReasonPhrase("OK")
+			.setStatusCode(statusCode)
+			.setReasonPhrase(getReasonPhrase(statusCode))
 			.setServer("Server")
 			.setContentType(
 				getContentType(fileExtension)

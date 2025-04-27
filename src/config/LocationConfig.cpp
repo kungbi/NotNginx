@@ -6,7 +6,7 @@ LocationConfig::LocationConfig(
 	const std::string& root,
 	const std::vector<std::string>& allowMethod,
 	bool autoindex,
-	const std::map<int, std::string>& redirect,
+	std::vector<std::pair<int, std::string> > redirect,
 	const std::vector<std::string>& index,
 	const std::string& cgiInterpreter,
 	const std::string& path // Ensure const references
@@ -49,10 +49,23 @@ bool LocationConfig::isAutoindexEnabled() const {
 }
 
 bool LocationConfig::isValidMethod(const std::string& method) const {
+	if (allowMethod.size() == 0)
+		return true;
 	for (size_t i = 0; i < allowMethod.size(); i++) {
 		if (method == allowMethod[i]) {
 			return true;
 		}
 	}
 	return false;
+}
+
+bool LocationConfig::isRedirectEnabled() const {
+	return !redirect.empty();
+}
+
+std::pair<int, std::string> LocationConfig::getRedirect() const {
+	if (redirect.empty()) {
+		throw std::runtime_error("Error: No redirect configuration found.");
+	}
+	return redirect[0];
 }

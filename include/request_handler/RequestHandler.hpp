@@ -8,9 +8,9 @@
 
 class RequestHandler {
 private:
+	int serverFd_;
     Router& router_;
     CgiHandler& cgiHandler_;
-	int serverFd_;
 
 public:
 	RequestHandler(int serverFd, Router& router, CgiHandler& cgiHandler);

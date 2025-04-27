@@ -85,8 +85,12 @@ RouteResult Router::routeRequest(const Request& request) const {
 			throw MethodNotAllowedError("Error: Method not allowed for this location.");
 		}
 
-		std::string relativePath = getRelativePath(target, pattern);
+		if (location.isRedirectEnabled()) {
+			std::pair<int, std::string> redirect = location.getRedirect();
+			return RouteResult(REDIRECT_RESOURCE, redirect.second, "");
+		}
 
+		std::string relativePath = getRelativePath(target, pattern);
 		if (!fileName.empty() && relativePath.size() >= fileName.size() &&
 			relativePath.substr(relativePath.size() - fileName.size()) == fileName) {
 			relativePath = relativePath.substr(0, relativePath.size() - fileName.size());

@@ -14,7 +14,11 @@ Response* RequestHandler::dispatch(const Request& request, int clientFd) {
 	}
 	if (routeResult.type == STATIC_RESOURCE) {
 		// static resource request
-		Response* response = StaticResourceHandler::execute(routeResult.filePath, routeResult.fileExtension);
+		Response* response = StaticResourceHandler::execute(routeResult.filePath, routeResult.fileExtension, 200);
+		return response;
+	}
+	if (routeResult.type == REDIRECT_RESOURCE) {
+		Response* response = StaticResourceHandler::execute(routeResult.filePath, routeResult.fileExtension, 301);
 		return response;
 	}
 

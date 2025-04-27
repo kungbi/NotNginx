@@ -11,7 +11,7 @@ private:
 	std::string root;
 	std::vector<std::string> allowMethod;
 	bool autoindex;
-	std::map<int, std::string> redirect;
+	std::vector< std::pair<int, std::string> > redirect;
 	std::vector<std::string> index;
 	std::string cgiInterpreter;
 	std::string path;
@@ -22,7 +22,7 @@ public:
 		const std::string& root,
 		const std::vector<std::string>& allowMethod,
 		bool autoindex,
-		const std::map<int, std::string>& redirect,
+		std::vector<std::pair<int, std::string> > redirect,
 		const std::vector<std::string>& index,
 		const std::string& cgiInterpreter,
 		const std::string& path // Ensure const references
@@ -37,6 +37,9 @@ public:
 	const std::vector<std::string>& getIndex() const;
 	std::string getPath() const;
 	bool isAutoindexEnabled() const;
+
+	bool isRedirectEnabled() const;
+	std::pair<int, std::string> getRedirect() const;
 };
 
 #endif // LOCATIONCONFIG_HPP

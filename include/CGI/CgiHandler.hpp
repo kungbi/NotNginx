@@ -7,15 +7,15 @@
 
 class CgiHandler {
 private:
-    Kqueue& kqueue_;
-    CgiExecuter cgiExecuter_;
-	int serverFd_;
+int serverFd_;
+	Kqueue& kqueue_;
+	CgiExecuter cgiExecuter_;
 
-    std::string requestTypeToString(RequestType type);
+	std::string requestTypeToString(RequestType type);
 
 public:
-    CgiHandler(int serverFd, Kqueue& kqueue);
-    ~CgiHandler();
+	CgiHandler(int serverFd, Kqueue& kqueue);
+	~CgiHandler();
 
-    void processCgiRequest(const Request& request, int clientFd, RouteResult routeResult);
+	void processCgiRequest(const Request& request, int clientFd, RouteResult routeResult);
 };

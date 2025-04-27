@@ -19,6 +19,7 @@ private:
 	std::string contentType_;
 	size_t contentLength_;
 	std::string connection_;
+	std::string location_;
 
 	// Body
 	std::string body_;
@@ -33,6 +34,7 @@ private:
 		const std::string& contentType,
 		size_t contentLength,
 		const std::string& connection,
+		std::string connection_,
 		const std::string& body
 	);
 
@@ -51,6 +53,7 @@ private:
 	std::string server_;
 	std::string contentType_;
 	std::string connection_;
+	std::string location_;
 	std::string body_;
 
 	void validate(void) const;
@@ -65,6 +68,7 @@ public:
 	Builder& setContentType(const std::string& contentType);
 	Builder& setConnection(const std::string& connection);
 	Builder& setBody(const std::string& body);
+	Builder& setLocation(const std::string& location);
 
 	StaticResourceResponse* build() const;
 };
