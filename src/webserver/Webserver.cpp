@@ -54,7 +54,9 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 		std::cout << "Response event." << std::endl;
-		processClientResponse(fd, eventInfo);
+		if (processClientResponse(fd, eventInfo) == 0) {
+			delete eventInfo;
+		}
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::CGI_RESPONSE) {
