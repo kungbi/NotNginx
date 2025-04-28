@@ -79,6 +79,7 @@ void Webserver::start() {
 			std::cerr << "Status Code: " << e.getStatusCode() << std::endl;
 			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
 			server->handleError(fd, e.getStatusCode());
+			delete eventInfo;
 		}
 
 		delete[] event;
