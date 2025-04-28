@@ -75,14 +75,14 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		// 클라이언트가 연결을 닫은 경우
 		std::cout << "Client disconnected on FD: " << clientFd << std::endl;
 		this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
-		close(clientFd); // 소켓 닫기
+		this->closeConnection(clientFd); // 소켓 닫기
 		return CLIENT_DISCONNECTED;
 	}
 	
-	perror("Error reading from FD");
+	perror("Error(or closing) reading from FD");
 	this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
-	close(clientFd); // 소켓 닫기
-	return ERROR;
+	this->closeConnection(clientFd); // 소켓 닫기
+	return CLOSE;
 }
 
 int Server::handleResponse(int clientFd) {

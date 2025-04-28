@@ -74,7 +74,7 @@ int Servers::processRequest(int serverFd, int clientFd) {
 
 	int result = server->handleRequest(clientFd);
 	if (result == SUCCESS) {
-		this->kqueue_.removeEvent(clientFd, EVFILT_READ);
+		// this->kqueue_.removeEvent(clientFd, EVFILT_READ);
 	}
 	return result;
 }
@@ -86,8 +86,8 @@ int Servers::processResponse(int serverFd, int clientFd) {
 	}
 
 	server->handleResponse(clientFd);
-	server->closeConnection(clientFd);
-	// kqueue_.removeEvent(clientFd, EVFILT_WRITE);
+	// server->closeConnection(clientFd);
+	kqueue_.removeEvent(clientFd, EVFILT_WRITE);
 	return 0;
 }
 

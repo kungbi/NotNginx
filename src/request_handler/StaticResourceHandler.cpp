@@ -14,7 +14,7 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 			.setLocation(path)
 			.setServer("Server")
 			.setContentType("text/plain")
-			.setConnection("close")
+			.setConnection("keep-alive")
 			.setBody("")
 			.build();
 	}
@@ -43,7 +43,7 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 				.setReasonPhrase(getReasonPhrase(statusCode))
 				.setServer("Server")
 				.setContentType("text/plain")
-				.setConnection("close")
+				.setConnection("keep-alive")
 				.setBody(body)
 				.build();
 
@@ -69,7 +69,7 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 			.setContentType(
 				getContentType(fileExtension)
 			)
-			.setConnection("close")
+			.setConnection("keep-alive")
 			.setBody(body)
 			.build();
 

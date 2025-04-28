@@ -21,7 +21,7 @@ enum HandleRequestResult {
     SUCCESS = 0,
     CLIENT_DISCONNECTED = 1,
     NO_REQUEST_YET = 2,
-    ERROR = -1
+    CLOSE = -1
 };
 
 class Server {
