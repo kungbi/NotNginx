@@ -16,6 +16,7 @@
 # include "StaticResourceHandler.hpp"
 # include "RequestHandler.hpp"
 # include "HttpExceptions.hpp"
+# include "ErrorPageGenerator.hpp"
 
 enum HandleRequestResult {
     SUCCESS = 0,

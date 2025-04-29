@@ -128,11 +128,15 @@ void Server::closeConnection(int clientFd) {
 
 void Server::handleError(int clientFd, int errorCode) {
 	std::string resolvedErrorFile = resolveErrorFile(errorCode);
+
+	std::string response;
+	
 	if (resolvedErrorFile.empty()) {
-		throw std::runtime_error("No matching location found for error file.");
+		response = generateDefaultErrorPage(errorCode);
+	} else {
+		response = readErrorFile(resolvedErrorFile);
 	}
 
-	std::string response = readErrorFile(resolvedErrorFile);
 	if (response.empty()) {
 		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
 		closeConnection(clientFd);
@@ -146,7 +150,8 @@ void Server::handleError(int clientFd, int errorCode) {
 std::string Server::resolveErrorFile(int errorCode) {
 	const std::map<int, std::string>& errorPages = serverConfig_.getErrorPages();
 	if (errorPages.find(errorCode) == errorPages.end()) {
-		throw NotFoundError("Error page not found errorpage");
+		// throw NotFoundError("Error page not found errorpage");
+		return "";
 	}
 
 	std::string errorFile = errorPages.at(errorCode);
