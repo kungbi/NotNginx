@@ -54,8 +54,14 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 	return NO_REQUEST_YET;
 }
 
-void Server::sendResponse(int clientFd, const std::string& response) {
-	send(clientFd, response.c_str(), response.size(), 0);
+bool Server::sendResponse(int clientFd, const std::string& response) {
+	ssize_t bytesSent = send(clientFd, response.c_str(), response.size(), 0);
+	if (bytesSent == -1) {
+		perror("send failed");
+		closeConnection(clientFd);
+		return false;
+	}
+	return true;
 }
 
 int Server::handleRequest(int clientFd) { // <- 함수 분리 전
@@ -93,7 +99,9 @@ int Server::handleResponse(int clientFd) {
 	}
 
 	Response* response = this->connections_.getResponse(clientFd);
-	sendResponse(clientFd, response->getResponse());
+	if (sendResponse(clientFd, response->getResponse())) {
+		// closeConnection(clientFd);
+	}
 	delete response; // 응답 객체 삭제
 	return 0;
 }
@@ -122,6 +130,7 @@ int Server::handleCgiResponse(int cgiFd, int clientFd) {
 
 
 void Server::closeConnection(int clientFd) {
+	shutdown(clientFd, SHUT_WR); // 쓰기 종료 알림
 	close(clientFd);
 	this->connections_.removeConnection(clientFd);
 }
@@ -143,8 +152,9 @@ void Server::handleError(int clientFd, int errorCode) {
 		return;
 	}
 
-	sendErrorResponse(clientFd, errorCode, response);
-	closeConnection(clientFd);
+	if (sendResponse(clientFd, response)) {
+		closeConnection(clientFd);
+	}
 }
 
 std::string Server::resolveErrorFile(int errorCode) {
