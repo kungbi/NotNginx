@@ -57,7 +57,6 @@ int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRea
 bool Server::sendResponse(int clientFd, const std::string& response) {
 	ssize_t bytesSent = send(clientFd, response.c_str(), response.size(), 0);
 	if (bytesSent == -1) {
-		perror("send failed");
 		closeConnection(clientFd);
 		return false;
 	}
@@ -138,23 +137,35 @@ void Server::closeConnection(int clientFd) {
 void Server::handleError(int clientFd, int errorCode) {
 	std::string resolvedErrorFile = resolveErrorFile(errorCode);
 
-	std::string response;
+	std::string responseBody;
 	
+	std::cout << "Resolved error file: " << resolvedErrorFile << std::endl;
 	if (resolvedErrorFile.empty()) {
-		response = generateDefaultErrorPage(errorCode);
+		responseBody = generateDefaultErrorPage(errorCode);
 	} else {
-		response = readErrorFile(resolvedErrorFile);
+		responseBody = readErrorFile(resolvedErrorFile);
 	}
 
-	if (response.empty()) {
+	if (responseBody.empty()) {
 		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
 		closeConnection(clientFd);
 		return;
 	}
 
-	if (sendResponse(clientFd, response)) {
+	Response *response = StaticResourceResponse::Builder()
+			.setProtocolVersion("HTTP/1.1")
+			.setStatusCode(errorCode)
+			.setReasonPhrase(getReasonPhrase(errorCode))
+			.setServer("Server")
+			.setContentType(getContentType("html"))
+			.setConnection("keep-alive")
+			.setBody(responseBody)
+			.build();
+
+	if (sendResponse(clientFd, response->getResponse())) {
 		closeConnection(clientFd);
 	}
+	delete response; // 응답 객체 삭제
 }
 
 std::string Server::resolveErrorFile(int errorCode) {
