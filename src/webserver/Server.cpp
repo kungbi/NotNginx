@@ -140,16 +140,14 @@ void Server::handleError(int clientFd, int errorCode) {
 	std::string responseBody;
 	
 	std::cout << "Resolved error file: " << resolvedErrorFile << std::endl;
-	if (resolvedErrorFile.empty()) {
+	if (!resolvedErrorFile.empty()) 
 		responseBody = generateDefaultErrorPage(errorCode);
-	} else {
-		responseBody = readErrorFile(resolvedErrorFile);
-	}
 
 	if (responseBody.empty()) {
 		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
-		closeConnection(clientFd);
-		return;
+		responseBody = generateDefaultErrorPage(errorCode);
+		// closeConnection(clientFd);
+		// return;
 	}
 
 	Response *response = StaticResourceResponse::Builder()
