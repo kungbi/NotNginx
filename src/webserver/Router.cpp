@@ -150,7 +150,7 @@ RouteResult Router::routeRequest(const Request& request) const {
 		return createResult(location, filePath, fileExtension);
 	}
 
-	throw std::runtime_error("Error: No matching location found for target: " + target);
+	throw NotFoundError("Error: No matching location found for the request.");
 }
 
 bool Router::isValidMethod(const RequestType& method, const LocationConfig& location) const {
