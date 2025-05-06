@@ -1,6 +1,6 @@
 #include "Webserver.hpp"
 #include <fstream>
-#include "HttpExceptions.hpp" // Include the custom exceptions header
+#include "HttpExceptions.hpp"
 
 Webserver::Webserver(Kqueue& kqueue, Servers& servers, WebserverConfig& config)
 	: kqueue_(kqueue), servers_(servers), config_(config) {}
