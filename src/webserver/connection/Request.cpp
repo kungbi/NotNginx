@@ -29,7 +29,11 @@ Request::Request(
 	contentLength_(contentLength),
 	accept_(accept),
 	body_(body),
-	contentType_(contentType) {}
+	contentType_(contentType) {
+		if (host.empty()) {
+			throw BadRequestError("Host is empty");
+		}
+	}
 
 RequestType Request::getRequestType() const {
 	return requestType_;
