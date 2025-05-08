@@ -14,6 +14,13 @@ public:
 	virtual int getStatusCode() const = 0;
 };
 
+// exception for timeout errors
+class TimeoutException : public std::runtime_error {
+public:
+	explicit TimeoutException(const std::string& message)
+		: std::runtime_error(message) {}
+};
+
 // Derived exception for 404 Not Found
 class NotFoundError : public HttpException {
 public:

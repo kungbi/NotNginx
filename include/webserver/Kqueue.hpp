@@ -6,6 +6,7 @@
 # include <sys/event.h>
 # include <sys/types.h>
 # include <unistd.h>
+# include "HttpExceptions.hpp"
 
 namespace KQUEUE_EVENT {
 	enum TYPE {

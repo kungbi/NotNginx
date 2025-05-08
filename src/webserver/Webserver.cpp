@@ -71,6 +71,11 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 void Webserver::start() {
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
+		if (event == nullptr) {
+			std::cerr << "Error polling events." << std::endl;
+			continue;
+		}
+
 		int fd = event->ident;
 		EventInfo* eventInfo = (EventInfo *) event->udata;
 		try {
@@ -82,7 +87,6 @@ void Webserver::start() {
 			server->handleError(fd, e.getStatusCode());
 			delete eventInfo;
 		}
-
 		delete[] event;
 	}
 }

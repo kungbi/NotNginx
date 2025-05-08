@@ -73,7 +73,7 @@ void Kqueue::removeEvent(int fd, int filter) {
 	std::cout << "FD: " << fd << " removed." << std::endl;
 }
 
-static const int TIMEOUT_MS = -1;
+static const int TIMEOUT_MS = 3000;
 
 struct kevent* Kqueue::pollEvents() {
 	struct kevent events[MAX_EVENTS];
@@ -87,9 +87,9 @@ struct kevent* Kqueue::pollEvents() {
 	}
 
 	int eventCount = kevent(kqueueFd_, nullptr, 0, events, MAX_EVENTS, timeoutPtr);
+	std::cout << "Event count: " << eventCount << std::endl;
 	if (eventCount == -1) {
 		if (errno == EINTR) {
-        	// 시그널 때문에 인터럽트됐으면 무시하고 다시 kevent
 			return pollEvents();
 		}
 		throw std::runtime_error("Error polling kqueue events");
