@@ -43,7 +43,10 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 	if (eventInfo->type == KQUEUE_EVENT::SERVER) {
 		std::cout << "Server event." << std::endl;
 		connectClient(eventInfo);
+		return;
 	}
+
+	this->servers_.updateLastActiveTime(eventInfo->serverFd, fd);
 
 	if (eventInfo->type == KQUEUE_EVENT::REQUEST) {
 		std::cout << "Request event." << std::endl;

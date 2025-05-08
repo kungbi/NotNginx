@@ -8,6 +8,10 @@ Connection::Connection(int fd): fd_(fd), lastActiveTime_(time(NULL)) {
 	(void) fd_;
 }
 
+void Connection::updateLastActiveTime(void) {
+	this->lastActiveTime_ = time(NULL);
+}
+
 void Connection::appendRequestData(const char* data, size_t length) {
 	this->originalRequest_.append(data, length);
 }

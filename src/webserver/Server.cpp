@@ -29,6 +29,10 @@ int Server::acceptClient() {
 	return clientFd;
 }
 
+void Server::updateLastActiveTime(int clientFd) {
+	this->connections_.updateLastActiveTime(clientFd);
+}
+
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {
 	std::cout << "Received: " << buffer << " from FD: " << clientFd << std::endl;
 	if (!this->connections_.hasConnection(clientFd)) {

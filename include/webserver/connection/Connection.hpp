@@ -19,6 +19,8 @@ public:
 	Connection(int fd);
 	~Connection(void);
 
+	void updateLastActiveTime(void);
+
 	// request handling
 	size_t getOriginalRequestSize(void) const;
 	size_t getBodySize(void) const;

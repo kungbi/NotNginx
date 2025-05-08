@@ -20,6 +20,8 @@ public:
 	Servers(Kqueue& kqueue);
 	~Servers();
 
+	void updateLastActiveTime(int serverFd, int clientFd);
+
 	Server* createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler);
 	void addServer(Server &server);
 	bool isServerSocketFd(int fd);

@@ -87,7 +87,6 @@ struct kevent* Kqueue::pollEvents() {
 	}
 
 	int eventCount = kevent(kqueueFd_, nullptr, 0, events, MAX_EVENTS, timeoutPtr);
-	std::cout << "Event count: " << eventCount << std::endl;
 	if (eventCount == -1) {
 		if (errno == EINTR) {
 			return pollEvents();

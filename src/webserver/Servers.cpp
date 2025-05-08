@@ -9,6 +9,15 @@ Servers::~Servers() {
 	servers_.clear();
 }
 
+void Servers::updateLastActiveTime(int serverFd, int clientFd) {
+	std::cout << "Updating last active time for server FD: " << serverFd << ", client FD: " << clientFd << std::endl;
+	Server* server = getServerForSocketFd(serverFd);
+	if (server == nullptr) {
+		throw std::runtime_error("No server found for server FD");
+	}
+	server->updateLastActiveTime(clientFd);
+}
+
 Server* Servers::createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler) {
 	std::cout << "Creating server for: " << config.getServerName() << ":" << config.getPort() << std::endl;
 	return new Server(socket, config, kqueue, requestHandler);
@@ -73,9 +82,6 @@ int Servers::processRequest(int serverFd, int clientFd) {
 	}
 
 	int result = server->handleRequest(clientFd);
-	if (result == SUCCESS) {
-		// this->kqueue_.removeEvent(clientFd, EVFILT_READ);
-	}
 	return result;
 }
 
@@ -86,7 +92,6 @@ int Servers::processResponse(int serverFd, int clientFd) {
 	}
 
 	server->handleResponse(clientFd);
-	// server->closeConnection(clientFd);
 	kqueue_.removeEvent(clientFd, EVFILT_WRITE);
 	return 0;
 }

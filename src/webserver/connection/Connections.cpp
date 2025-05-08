@@ -8,6 +8,10 @@ void Connections::appendRequestData(int fd, const char* data, size_t length) {
 	this->connections_.at(fd)->appendRequestData(data, length);
 }
 
+void Connections::updateLastActiveTime(int fd) {
+	this->connections_.at(fd)->updateLastActiveTime();
+}
+
 void Connections::addConnection(int fd) {
 	if (this->hasConnection(fd)) {
 		throw std::runtime_error("Connection already exists");

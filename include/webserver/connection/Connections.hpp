@@ -15,6 +15,8 @@ public:
 	Connections(void);
 	~Connections(void);
 
+	void updateLastActiveTime(int fd);
+
 	// Connection handling
 	void addConnection(int fd);
 	void removeConnection(int fd);
