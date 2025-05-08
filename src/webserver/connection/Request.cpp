@@ -33,6 +33,9 @@ Request::Request(
 		if (host.empty()) {
 			throw BadRequestError("Host is empty");
 		}
+		if (protocolVersion != "HTTP/1.1") {
+			throw BadRequestError("Unsupported protocol version");
+		}
 	}
 
 RequestType Request::getRequestType() const {
