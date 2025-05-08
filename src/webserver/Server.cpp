@@ -24,7 +24,9 @@ int Server::getSocketFd() const {
 }
 
 int Server::acceptClient() {
-	return serverSocket_.acceptConnection(); // 클라이언트 요청을 수락하고 FD 반환
+	int clientFd = serverSocket_.acceptConnection();
+	this->connections_.addConnection(clientFd);
+	return clientFd;
 }
 
 int Server::processClientData(int clientFd, const char* buffer, ssize_t bytesRead) {

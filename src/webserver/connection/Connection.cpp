@@ -4,7 +4,7 @@ Connection::Connection(void) {}
 
 Connection::~Connection(void) {}
 
-Connection::Connection(int fd): fd_(fd) {
+Connection::Connection(int fd): fd_(fd), lastActiveTime_(time(NULL)) {
 	(void) fd_;
 }
 

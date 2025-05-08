@@ -11,6 +11,7 @@ private:
 	int fd_;
 	std::string originalRequest_;
 	Responses responses_;
+	time_t lastActiveTime_;
 
 	Connection(void);
 
