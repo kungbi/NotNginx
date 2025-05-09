@@ -14,6 +14,11 @@ Kqueue::Kqueue() {
 }
 
 Kqueue::~Kqueue() {
+	for (std::map<std::pair<int, int>, EventInfo*>::iterator it = eventInfoMap_.begin(); it != eventInfoMap_.end(); ++it) {
+		delete it->second;
+	}
+	eventInfoMap_.clear();
+
 	if (close(kqueueFd_) == -1) {
 		throw std::runtime_error("Failed to close kqueue");
 	}
@@ -42,6 +47,11 @@ void Kqueue::addEvent(int fd, int eventType, int serverFd) {
 	struct kevent event;
 	EventInfo* eventInfo = new EventInfo(eventType, serverFd);
 
+	if (eventInfoMap_[std::make_pair(fd, eventType)]) {
+		delete eventInfoMap_[std::make_pair(fd, eventType)];
+	}
+	eventInfoMap_[std::make_pair(fd, eventType)] = eventInfo;
+
 	EV_SET(&event, fd, filter, EV_ADD | EV_ENABLE, 0, 0, eventInfo);
 	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
 		throw std::runtime_error("Failed to add FD to kqueue");
@@ -54,6 +64,8 @@ void Kqueue::addEvent(int fd, int eventType, int clientFd, int serverFd) {
 	int filter = getFilter(eventType);
 	struct kevent event;
 	EventInfo* eventInfo = new EventInfo(eventType, serverFd, clientFd);
+
+	eventInfoMap_[std::make_pair(fd, eventType)] = eventInfo;
 
 	EV_SET(&event, fd, filter, EV_ADD | EV_ENABLE, 0, 0, eventInfo);
 	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
@@ -68,6 +80,13 @@ void Kqueue::removeEvent(int fd, int filter) {
 	EV_SET(&event, fd, filter, EV_DELETE, 0, 0, nullptr);
 	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
 		throw std::runtime_error("Failed to remove FD from kqueue");
+	}
+
+	std::pair<int, int> key = std::make_pair(fd, filter);
+	auto it = eventInfoMap_.find(key);
+	if (it != eventInfoMap_.end()) {
+		delete it->second;
+		eventInfoMap_.erase(it);
 	}
 
 	std::cout << "FD: " << fd << " removed." << std::endl;
@@ -94,7 +113,6 @@ struct kevent* Kqueue::pollEvents() {
 		throw std::runtime_error("Error polling kqueue events");
 	}
 	if (eventCount == 0) {
-		std::cout << "No events to process." << std::endl;
 		return nullptr;
 	}
 

@@ -19,6 +19,7 @@ public:
 	Connection(int fd);
 	~Connection(void);
 
+	bool isTimeout(const time_t currentTime,  const int timeoutMs) const;
 	void updateLastActiveTime(void);
 
 	// request handling

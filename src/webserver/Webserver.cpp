@@ -52,21 +52,21 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 		std::cout << "Request event." << std::endl;
 		int result = processClientRequest(fd, eventInfo);
 		if ( result == CLOSE || result == CLIENT_DISCONNECTED) {
-			delete eventInfo;
+			kqueue_.removeEvent(fd, KQUEUE_EVENT::REQUEST);
 		}
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 		std::cout << "Response event." << std::endl;
 		if (processClientResponse(fd, eventInfo) == 0) {
-			delete eventInfo;
+			kqueue_.removeEvent(fd, KQUEUE_EVENT::RESPONSE);
 		}
 	}
 
 	if (eventInfo->type == KQUEUE_EVENT::CGI_RESPONSE) {
         std::cout << "CGI response event." << std::endl;
         if (processCgiResponse(fd, eventInfo) == 0) {
-			delete eventInfo;
+			// delete eventInfo;
 		}
     }
 }
@@ -74,8 +74,7 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 void Webserver::start() {
 	while (true) {
 		struct kevent* event = kqueue_.pollEvents();
-		// timeout check
-
+		this->servers_.validateLastActiveTime(2900);
 		if (event == nullptr)
 			continue;
 

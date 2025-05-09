@@ -9,6 +9,18 @@ Servers::~Servers() {
 	servers_.clear();
 }
 
+void Servers::validateLastActiveTime(int timeoutMs) {
+	for (size_t i = 0; i < servers_.size(); ++i) {
+		std::vector<int> timedOutFds = servers_[i]->validateLastActiveTime(timeoutMs);
+
+		for (size_t j = 0; j < timedOutFds.size(); ++j) {
+			kqueue_.removeEvent(timedOutFds[j], EVFILT_READ);
+			shutdown(timedOutFds[j], SHUT_RDWR);
+			close(timedOutFds[j]);
+		}
+	}
+}
+
 void Servers::updateLastActiveTime(int serverFd, int clientFd) {
 	std::cout << "Updating last active time for server FD: " << serverFd << ", client FD: " << clientFd << std::endl;
 	Server* server = getServerForSocketFd(serverFd);
@@ -82,6 +94,7 @@ int Servers::processRequest(int serverFd, int clientFd) {
 	}
 
 	int result = server->handleRequest(clientFd);
+	
 	return result;
 }
 
@@ -92,7 +105,7 @@ int Servers::processResponse(int serverFd, int clientFd) {
 	}
 
 	server->handleResponse(clientFd);
-	kqueue_.removeEvent(clientFd, EVFILT_WRITE);
+	// kqueue_.removeEvent(clientFd, EVFILT_WRITE);
 	return 0;
 }
 

@@ -8,6 +8,13 @@ Connection::Connection(int fd): fd_(fd), lastActiveTime_(time(NULL)) {
 	(void) fd_;
 }
 
+bool Connection::isTimeout(const time_t currentTime,  const int timeoutMs) const {
+	if (difftime(currentTime, this->lastActiveTime_) > timeoutMs / 1000) {
+		return true; // 타임아웃
+	}
+	return false;
+}
+
 void Connection::updateLastActiveTime(void) {
 	this->lastActiveTime_ = time(NULL);
 }
@@ -17,7 +24,9 @@ void Connection::appendRequestData(const char* data, size_t length) {
 }
 
 bool Connection::hasRequest(void) const {
+	std::cout << "originalRequest_: " << this->originalRequest_ << std::endl;
     size_t headerEnd = this->originalRequest_.find("\r\n\r\n");
+	std::cout << "headerEnd: " << headerEnd << std::endl;
     if (headerEnd == std::string::npos)
         return false; // 헤더도 아직 다 안 옴
 

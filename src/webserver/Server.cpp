@@ -29,6 +29,10 @@ int Server::acceptClient() {
 	return clientFd;
 }
 
+std::vector<int> Server::validateLastActiveTime(int timeoutMs) {
+	return this->connections_.validateLastActiveTime(timeoutMs);
+}
+
 void Server::updateLastActiveTime(int clientFd) {
 	this->connections_.updateLastActiveTime(clientFd);
 }
@@ -85,7 +89,6 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 	if (bytesRead == 0) {
 		// 클라이언트가 연결을 닫은 경우
 		std::cout << "Client disconnected on FD: " << clientFd << std::endl;
-		this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
 		this->closeConnection(clientFd); // 소켓 닫기
 		return CLIENT_DISCONNECTED;
 	}

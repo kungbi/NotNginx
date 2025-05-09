@@ -7,6 +7,7 @@
 # include <sys/types.h>
 # include <unistd.h>
 # include "HttpExceptions.hpp"
+# include <map>
 
 namespace KQUEUE_EVENT {
 	enum TYPE {
@@ -30,6 +31,7 @@ const int MAX_EVENTS = 1024;
 class Kqueue {
 private:
 	int kqueueFd_;
+	std::map<std::pair<int, int>, EventInfo*> eventInfoMap_;
 
 	void initialize();
 	int getFilter(int eventType);

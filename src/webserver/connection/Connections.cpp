@@ -8,6 +8,24 @@ void Connections::appendRequestData(int fd, const char* data, size_t length) {
 	this->connections_.at(fd)->appendRequestData(data, length);
 }
 
+std::vector<int> Connections::validateLastActiveTime(int timeoutMs) {
+	time_t now = time(NULL);
+	std::vector<int> timedOutFds;
+
+	std::map<int, Connection*>::iterator it = this->connections_.begin();
+	while (it != this->connections_.end()) {
+		if (it->second->isTimeout(now, timeoutMs) == true) {
+			timedOutFds.push_back(it->first);
+		}
+		++it;
+	}
+
+	for (size_t i = 0; i < timedOutFds.size(); ++i) {
+		this->removeConnection(timedOutFds[i]);
+	}
+	return timedOutFds;
+}
+
 void Connections::updateLastActiveTime(int fd) {
 	this->connections_.at(fd)->updateLastActiveTime();
 }

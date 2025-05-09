@@ -20,6 +20,7 @@ public:
 	Servers(Kqueue& kqueue);
 	~Servers();
 
+	void validateLastActiveTime(int timeoutMs);
 	void updateLastActiveTime(int serverFd, int clientFd);
 
 	Server* createServer(Socket& socket, ServerConfig& config, Kqueue& kqueue, RequestHandler& requestHandler);

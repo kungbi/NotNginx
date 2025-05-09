@@ -42,7 +42,10 @@ private:
 
 public:
 	Server(Socket& serverSocket, ServerConfig& serverConfig, Kqueue& kqueue, RequestHandler& requestHandler);
+
+	std::vector<int> validateLastActiveTime(int timeoutMs);
 	void updateLastActiveTime(int clientFd);
+
 	int getSocketFd() const;
 	int acceptClient();
 	int handleRequest(int clientFd);

@@ -4,6 +4,9 @@
 # include "Connection.hpp"
 # include <map>
 # include <string>
+# include <unistd.h>
+# include <sys/socket.h>
+# include <vector>
 
 class Connections {
 private:
@@ -15,6 +18,7 @@ public:
 	Connections(void);
 	~Connections(void);
 
+	std::vector<int> validateLastActiveTime(int timeoutMs);
 	void updateLastActiveTime(int fd);
 
 	// Connection handling
