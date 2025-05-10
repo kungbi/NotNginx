@@ -44,7 +44,7 @@ Socket::Socket(const std::string& ip, int port) {
 	configureSocket(ip, port);
 	setSocketOptions();
 	bindSocket();
-	listenSocket(SOMAXCONN);
+	listenSocket(1024);
 	std::cout << "Socket is now in listening state at " << ip << ":" << port << std::endl;
 }
 
