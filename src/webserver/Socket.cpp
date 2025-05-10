@@ -3,7 +3,6 @@
 void Socket::setSocketOptions() {
 	int opt = 1;
 	if (setsockopt(socketFd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
-		perror("Set socket options failed");
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -11,7 +10,6 @@ void Socket::setSocketOptions() {
 
 void Socket::bindSocket() {
 	if (bind(socketFd_, reinterpret_cast<struct sockaddr*>(&address_), sizeof(address_)) == -1) {
-		perror("Socket bind failed");
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -19,7 +17,6 @@ void Socket::bindSocket() {
 
 void Socket::listenSocket(int backlog = 5) {
 	if (listen(socketFd_, backlog) == -1) {
-		perror("Socket listen failed");
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -36,7 +33,6 @@ Socket::Socket(const std::string& ip, int port) {
 	// 소켓 생성
 	socketFd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketFd_ == -1) {
-		perror("Socket creation failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -56,7 +52,6 @@ int Socket::acceptConnection() {
 	socklen_t addrLen = sizeof(address_);
 	int clientFd = accept(socketFd_, reinterpret_cast<struct sockaddr*>(&address_), &addrLen);
 	if (clientFd == -1) {
-		perror("Socket accept failed");
 	} else {
 		std::cout << "Accepted connection with FD: " << clientFd << std::endl;
 	}

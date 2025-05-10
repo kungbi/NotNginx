@@ -84,7 +84,7 @@ void Kqueue::removeEvent(int fd, int filter) {
 	}
 
 	std::pair<int, int> key = std::make_pair(fd, filter);
-	auto it = eventInfoMap_.find(key);
+	std::map<std::pair<int, int>, EventInfo*>::iterator it = eventInfoMap_.find(key);
 	if (it != eventInfoMap_.end()) {
 		delete it->second;
 		eventInfoMap_.erase(it);

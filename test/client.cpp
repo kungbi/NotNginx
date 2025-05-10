@@ -9,7 +9,6 @@ void runClient(const std::string& ip, int port) {
     // 소켓 생성
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == -1) {
-        perror("Socket creation failed");
         return;
     }
 
@@ -19,14 +18,12 @@ void runClient(const std::string& ip, int port) {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
     if (inet_pton(AF_INET, ip.c_str(), &serverAddr.sin_addr) <= 0) {
-        perror("Invalid IP address");
         close(clientSocket);
         return;
     }
 
     // 서버에 연결
     if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
-        perror("Connection to server failed");
         close(clientSocket);
         return;
     }
@@ -42,7 +39,6 @@ void runClient(const std::string& ip, int port) {
                           "\r\n";
 
     if (send(clientSocket, request.c_str(), request.size(), 0) == -1) {
-        perror("Failed to send request");
         close(clientSocket);
         return;
     }
@@ -57,7 +53,6 @@ void runClient(const std::string& ip, int port) {
     }
 
     if (bytesReceived == -1) {
-        perror("Error receiving response");
     }
 
     // 소켓 종료

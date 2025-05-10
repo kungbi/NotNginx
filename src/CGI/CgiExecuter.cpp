@@ -57,46 +57,18 @@ void CgiExecuter::executeChild(const CgiRequestData& requestData) {
     throw InternalServerError("Failed to execute CGI script");
 }
 
-// void CgiExecuter::executeChild(int writeFd, const CgiRequestData& requestData) {
-// 	// stdout -> writeFd 로 리다이렉션
-// 	if (dup2(writeFd, STDOUT_FILENO) == -1) {
-// 		perror("dup2 to STDOUT failed");
-// 		exit(1);
-// 	}
-// 	close(writeFd);
-
-// 	// body를 stdin으로 넘김
-// 	if (isMethodWithBody(requestData.requestMethod)) {
-// 		setupBodyPipe(requestData.requestBody);
-// 	}
-
-// 	// 환경변수 세팅
-// 	setEnvVariables(requestData);
-	
-// 	// CGI 실행
-// 	execlp(requestData.routeResult.cgiInterpreter.c_str(),
-// 	       requestData.routeResult.cgiInterpreter.c_str(),
-// 	       requestData.routeResult.filePath.c_str(),
-// 	       NULL);
-
-// 	throw InternalServerError("Failed to execute CGI script");
-// }
-
 void CgiExecuter::setupBodyPipe(const std::string& requestBody) {
 	int inputPipe[2];
 	if (pipe(inputPipe) == -1) {
-		perror("pipe");
 		exit(1);
 	}
 
 	if (write(inputPipe[1], requestBody.c_str(), requestBody.size()) == -1) {
-		perror("write to inputPipe failed");
 		exit(1);
 	}
 	close(inputPipe[1]);
 
 	if (dup2(inputPipe[0], STDIN_FILENO) == -1) {
-		perror("dup2 to STDIN failed");
 		exit(1);
 	}
 	close(inputPipe[0]);
@@ -131,7 +103,6 @@ void CgiExecuter::setupSigchldHandler() {
 	sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 	sigemptyset(&sa.sa_mask);
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
-		perror("sigaction failed");
 		exit(1);
 	}
 }
