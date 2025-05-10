@@ -2,10 +2,10 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>NotNginx에 오신 것을 환영합니다!</title>
+    <title>서버 오류 - 5xx</title>
     <style>
       body {
-        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        background: linear-gradient(135deg, #f87171 0%, #fbbf24 100%);
         color: #222;
         font-family: "Segoe UI", "Pretendard", Arial, sans-serif;
         display: flex;
@@ -23,20 +23,25 @@
         text-align: center;
         min-width: 340px;
       }
+      .icon {
+        font-size: 4rem;
+        margin-bottom: 18px;
+        color: #f87171;
+      }
       h1 {
-        font-size: 3rem;
-        margin-bottom: 12px;
-        color: #3b82f6;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #f87171;
       }
       p {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #555;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
       }
       a {
         display: inline-block;
-        padding: 12px 28px;
-        background: #3b82f6;
+        padding: 10px 24px;
+        background: #f87171;
         color: #fff;
         border-radius: 8px;
         text-decoration: none;
@@ -45,33 +50,20 @@
         transition: background 0.2s;
       }
       a:hover {
-        background: #2563eb;
-      }
-      .logo {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 18px;
+        background: #ef4444;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <svg class="logo" viewBox="0 0 64 64" fill="none">
-        <circle cx="32" cy="32" r="32" fill="#3b82f6" />
-        <text
-          x="50%"
-          y="54%"
-          text-anchor="middle"
-          fill="#fff"
-          font-size="32"
-          font-family="Segoe UI, Arial"
-          dy=".3em"
-        >
-          N
-        </text>
-      </svg>
-      <h1>NotNginx</h1>
-      <p>NotNginx에 오신 것을 환영합니다!</p>
+      <div class="icon">🚧</div>
+      <h1>서버 오류 (5xx)</h1>
+      <p>
+        서버에서 오류가 발생했습니다.<br />
+        잠시 후 다시 시도해 주세요.<br />
+        문제가 계속된다면 관리자에게 문의해 주세요.
+      </p>
+      <a href="/">메인 페이지로 이동</a>
     </div>
   </body>
 </html>

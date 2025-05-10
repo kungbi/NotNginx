@@ -2,6 +2,11 @@
 #include <iostream>
 #include <dirent.h>
 
+bool StaticResourceHandler::hasReadPermission(const std::string& path) {
+    return access(path.c_str(), R_OK) == 0;
+}
+
+
 Response* StaticResourceHandler::execute(std::string path, std::string fileExtension, int statusCode) {
 	std::cout << "path: " << path << std::endl;
 	std::cout << "fileExtension: " << fileExtension << std::endl;
@@ -51,6 +56,9 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 	}
 
 	std::ifstream file(path);
+	if (!hasReadPermission(path)) {
+		throw ForbiddenError("Permission denied");
+	}
 	if (!file.is_open()) {
 		throw NotFoundError("File not found");
 	}

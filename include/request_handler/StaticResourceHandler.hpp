@@ -8,12 +8,16 @@
 # include "MimeTypes.hpp"
 # include "HttpExceptions.hpp"
 # include "ResponseReason.hpp"
+# include <unistd.h>
+# include <sys/stat.h> 
 
 class StaticResourceHandler {
 private:
 	StaticResourceHandler(void);
 
+	
 public:
+	static bool hasReadPermission(const std::string& path);
 	static Response* execute(std::string path, std::string fileExtension, int statusCode);
 };
 

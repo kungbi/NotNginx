@@ -156,7 +156,7 @@ void Server::handleError(int clientFd, int errorCode) {
 	
 	std::cout << "Resolved error file: " << resolvedErrorFile << std::endl;
 	if (!resolvedErrorFile.empty()) 
-		responseBody = generateDefaultErrorPage(errorCode);
+		responseBody = readErrorFile(resolvedErrorFile);
 
 	if (responseBody.empty()) {
 		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
