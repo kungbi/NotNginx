@@ -6,7 +6,7 @@ import os
 import sys
 
 # 업로드될 파일 저장 경로 (절대경로로 설정)
-UPLOAD_DIR = "/Users/woongbishin/Woongbi_File/42seoul/NotNginx/html/upload"
+UPLOAD_DIR = "/Users/woonshin/goinfre/NotNginx/html/uploaded"
 
 form = cgi.FieldStorage()
 

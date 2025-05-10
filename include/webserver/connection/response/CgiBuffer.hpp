@@ -2,6 +2,7 @@
 # define CGI_BUFFER_HPP
 
 # include <map>
+# include <string>
 
 class CgiBuffer {
 private:

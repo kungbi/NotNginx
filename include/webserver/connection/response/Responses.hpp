@@ -4,6 +4,7 @@
 # include "Response.hpp"
 # include "CgiResponse.hpp"
 # include "CgiBuffer.hpp"
+# include <queue>
 
 class Responses {
 private:

@@ -56,6 +56,9 @@ Response* StaticResourceHandler::execute(std::string path, std::string fileExten
 	}
 
 	std::ifstream file(path);
+	if (!file) {
+		throw NotFoundError("File not found");
+	}
 	if (!hasReadPermission(path)) {
 		throw ForbiddenError("Permission denied");
 	}
