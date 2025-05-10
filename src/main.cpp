@@ -11,33 +11,26 @@
 
 #include "CgiHandler.hpp"
 
-WebserverConfig* initializeConfig(std::string configPath)
-{
-	// 설정 파일을 읽기
-	ConfigReader reader;
-	std::string configContent = reader.readConfigFile(configPath);  // 설정 파일 경로
+#include <memory>
 
-	if (configContent.empty()) throw std::runtime_error("Failed to read configuration file.");
+WebserverConfig* initializeConfig(std::string configPath) {
+    ConfigReader reader;
+    std::string configContent = reader.readConfigFile(configPath);
 
-	// 설정을 파싱하여 트리 구조 생성
-	ConfigParser parser;
-	parser.tokenize(configContent);
-	IConfigContext* rootContext = parser.parseConfig();
-	IConfigContext* httpContext = rootContext->getChild()[0]; // 첫 번째 자식이 http 컨텍스트라고 가정
+    if (configContent.empty()) throw std::runtime_error("Failed to read configuration file.");
 
-	if (!httpContext) throw std::runtime_error("Failed to parse configuration.");
-	
-	// 트리를 HTTPConfig 객체로 변환
-	ConfigData configData(httpContext);
-	HTTPConfig *httpConfig = ConfigAdapter::convertToHTTPConfig(configData);
-	delete rootContext; // 메모리 해제
-	return new WebserverConfig(httpConfig);
-}
+    ConfigParser parser;
+    parser.tokenize(configContent);
+    IConfigContext* rootContext = parser.parseConfig();
+    std::unique_ptr<IConfigContext> rootGuard(rootContext);
 
-#include <stdlib.h>
+    IConfigContext* httpContext = rootContext->getChild()[0];
 
-void leak() {
-	system("leaks webserv");
+    if (!httpContext) throw std::runtime_error("Failed to parse configuration.");
+    
+    ConfigData configData(httpContext);
+    HTTPConfig *httpConfig = ConfigAdapter::convertToHTTPConfig(configData);
+    return new WebserverConfig(httpConfig);
 }
 
 Webserver* dependencyInjection(WebserverConfig* config) {
@@ -60,19 +53,25 @@ Webserver* dependencyInjection(WebserverConfig* config) {
 }
 
 int main(int argc, char* argv[]) {
-	atexit(leak);
-	if (2 < argc)
-		throw std::runtime_error("Invalid number of arguments");
+    WebserverConfig* config = nullptr;
+    Webserver* webserver = nullptr;
+    try {
+        if (2 < argc)
+            throw std::runtime_error("Invalid number of arguments");
 
-	std::string configPath = "default.conf";
-	if (2 == argc)
-		configPath = argv[1];
-	
-	WebserverConfig* config = initializeConfig(configPath);
-	Webserver* webserver = dependencyInjection(config);
-	webserver->start();
+        std::string configPath = "default.conf";
+        if (2 == argc)
+            configPath = argv[1];
 
-	delete webserver; // 메모리 해제
-	delete config; // 메모리 해제
-	return 0;
+        config = initializeConfig(configPath);
+        webserver = dependencyInjection(config);
+        webserver->start();
+    } catch (const std::exception& e) {
+        std::cerr << "[ERROR] " << e.what() << std::endl;
+    }
+
+    // 안전하게 메모리 해제
+    delete webserver;
+    delete config;
+    return 0;
 }
