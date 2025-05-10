@@ -79,6 +79,7 @@ void Kqueue::removeEvent(int fd, int filter) {
 	struct kevent event;
 	EV_SET(&event, fd, filter, EV_DELETE, 0, 0, nullptr);
 	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
+		std::cerr << "kevent EV_DELETE failed for fd=" << fd << ": " << strerror(errno) << std::endl;
 		throw std::runtime_error("Failed to remove FD from kqueue");
 	}
 

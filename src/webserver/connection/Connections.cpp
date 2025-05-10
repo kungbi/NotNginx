@@ -27,6 +27,9 @@ std::vector<int> Connections::validateLastActiveTime(int timeoutMs) {
 }
 
 void Connections::updateLastActiveTime(int fd) {
+	if (this->connections_.find(fd) == this->connections_.end()) {
+		return;
+	}
 	this->connections_.at(fd)->updateLastActiveTime();
 }
 

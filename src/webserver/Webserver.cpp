@@ -52,7 +52,7 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 		std::cout << "Request event." << std::endl;
 		int result = processClientRequest(fd, eventInfo);
 		if ( result == CLOSE || result == CLIENT_DISCONNECTED) {
-			kqueue_.removeEvent(fd, KQUEUE_EVENT::REQUEST);
+			// kqueue_.removeEvent(fd, KQUEUE_EVENT::REQUEST);
 		}
 	}
 

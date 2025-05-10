@@ -84,7 +84,6 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		buffer[bytesRead] = '\0'; // Null-terminate for safety
 		return processClientData(clientFd, buffer, bytesRead);
 	}
-	// 이 아래 어차피 실행이 안되는 것 같음.
 	
 	if (bytesRead == 0) {
 		// 클라이언트가 연결을 닫은 경우
@@ -93,9 +92,8 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		return CLIENT_DISCONNECTED;
 	}
 	
-	perror("Error(or closing) reading from FD");
-	this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
-	this->closeConnection(clientFd); // 소켓 닫기
+	// this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
+	// this->closeConnection(clientFd); // 소켓 닫기
 	return CLOSE;
 }
 
