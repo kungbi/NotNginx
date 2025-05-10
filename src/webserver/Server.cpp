@@ -30,7 +30,11 @@ int Server::acceptClient() {
 }
 
 std::vector<int> Server::validateLastActiveTime(int timeoutMs) {
-	return this->connections_.validateLastActiveTime(timeoutMs);
+	std::vector<int> timedOutFds = this->connections_.validateLastActiveTime(timeoutMs);
+	for (size_t i = 0; i < timedOutFds.size(); ++i) {
+		this->handleError(timedOutFds[i], 408); // Request Timeout
+	}
+	return timedOutFds;
 }
 
 void Server::updateLastActiveTime(int clientFd) {
@@ -158,8 +162,6 @@ void Server::handleError(int clientFd, int errorCode) {
 	if (responseBody.empty()) {
 		std::cerr << "Failed to open error file: " << resolvedErrorFile << std::endl;
 		responseBody = generateDefaultErrorPage(errorCode);
-		// closeConnection(clientFd);
-		// return;
 	}
 
 	Response *response = StaticResourceResponse::Builder()
@@ -173,7 +175,7 @@ void Server::handleError(int clientFd, int errorCode) {
 			.build();
 
 	if (sendResponse(clientFd, response->getResponse())) {
-		closeConnection(clientFd);
+		// closeConnection(clientFd);
 	}
 	delete response; // 응답 객체 삭제
 }
