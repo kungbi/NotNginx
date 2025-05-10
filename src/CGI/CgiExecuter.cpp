@@ -60,15 +60,18 @@ void CgiExecuter::executeChild(const CgiRequestData& requestData) {
 void CgiExecuter::setupBodyPipe(const std::string& requestBody) {
 	int inputPipe[2];
 	if (pipe(inputPipe) == -1) {
+		std::cerr << "pipe() failed" << std::endl;
 		exit(1);
 	}
 
 	if (write(inputPipe[1], requestBody.c_str(), requestBody.size()) == -1) {
+		std::cerr << "write() failed" << std::endl;
 		exit(1);
 	}
 	close(inputPipe[1]);
 
 	if (dup2(inputPipe[0], STDIN_FILENO) == -1) {
+		std::cerr << "dup2() failed" << std::endl;
 		exit(1);
 	}
 	close(inputPipe[0]);
@@ -103,6 +106,7 @@ void CgiExecuter::setupSigchldHandler() {
 	sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 	sigemptyset(&sa.sa_mask);
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+		std::cerr << "sigaction() failed" << std::endl;
 		exit(1);
 	}
 }

@@ -96,8 +96,7 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 		return CLIENT_DISCONNECTED;
 	}
 	
-	// this->kqueue_.removeEvent(clientFd, EVFILT_READ); // 클라이언트 FD에서 이벤트 제거
-	// this->closeConnection(clientFd); // 소켓 닫기
+	std::cerr << "Error reading from client FD: " << clientFd << ", error: " << strerror(errno) << std::endl;
 	return CLOSE;
 }
 

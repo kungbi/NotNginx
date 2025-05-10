@@ -3,6 +3,7 @@
 void Socket::setSocketOptions() {
 	int opt = 1;
 	if (setsockopt(socketFd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
+		std::cerr << "Error setting socket options: " << strerror(errno) << std::endl;
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -10,6 +11,7 @@ void Socket::setSocketOptions() {
 
 void Socket::bindSocket() {
 	if (bind(socketFd_, reinterpret_cast<struct sockaddr*>(&address_), sizeof(address_)) == -1) {
+		std::cerr << "Error binding socket: " << strerror(errno) << std::endl;
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -17,6 +19,7 @@ void Socket::bindSocket() {
 
 void Socket::listenSocket(int backlog = 5) {
 	if (listen(socketFd_, backlog) == -1) {
+		std::cerr << "Error listening on socket: " << strerror(errno) << std::endl;
 		closeSocket();
 		exit(EXIT_FAILURE);
 	}
@@ -40,7 +43,7 @@ Socket::Socket(const std::string& ip, int port) {
 	configureSocket(ip, port);
 	setSocketOptions();
 	bindSocket();
-	listenSocket(1024);
+	listenSocket(1048500);
 	std::cout << "Socket is now in listening state at " << ip << ":" << port << std::endl;
 }
 
@@ -52,6 +55,7 @@ int Socket::acceptConnection() {
 	socklen_t addrLen = sizeof(address_);
 	int clientFd = accept(socketFd_, reinterpret_cast<struct sockaddr*>(&address_), &addrLen);
 	if (clientFd == -1) {
+		std::cerr << "Error accepting connection: " << strerror(errno) << std::endl;
 	} else {
 		std::cout << "Accepted connection with FD: " << clientFd << std::endl;
 	}
