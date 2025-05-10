@@ -25,14 +25,14 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 
 	// 2️⃣ 요청 라인 파싱
 	if (!std::getline(stream, line) || line.empty()) {
-		throw std::invalid_argument("Invalid request line");
+		throw BadRequestError("Invalid request line");
 	}
 	if (line.back() == '\r') line.pop_back();
 
 	std::istringstream lineStream(line);
 	std::string method, target, version;
 	if (!(lineStream >> method >> target >> version)) {
-		throw std::invalid_argument("Invalid request line");
+		throw BadRequestError("Invalid request line");
 	}
 
 	UriComponents uri = parseUri(target);

@@ -5,6 +5,7 @@
 # include <tuple>
 # include <string>
 # include "Request.hpp"
+# include "HttpExceptions.hpp"
 
 class Request; 
 

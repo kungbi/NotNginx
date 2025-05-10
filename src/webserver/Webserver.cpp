@@ -59,7 +59,7 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 	if (eventInfo->type == KQUEUE_EVENT::RESPONSE) {
 		std::cout << "Response event." << std::endl;
 		if (processClientResponse(fd, eventInfo) == 0) {
-			kqueue_.removeEvent(fd, KQUEUE_EVENT::RESPONSE);
+			kqueue_.removeEvent(fd, EVFILT_WRITE);
 		}
 	}
 
@@ -87,8 +87,9 @@ void Webserver::start() {
 			std::cerr << "Status Code: " << e.getStatusCode() << std::endl;
 			Server* server = servers_.getServerForSocketFd(eventInfo->serverFd);
 			server->handleError(fd, e.getStatusCode());
-			delete eventInfo;
+			// delete eventInfo;
 		}
+		std::cout << "Event processed." << std::endl;
 		delete[] event;
 	}
 }
