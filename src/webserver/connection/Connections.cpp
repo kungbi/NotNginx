@@ -5,6 +5,9 @@
 Connections::Connections() {}
 
 void Connections::appendRequestData(int fd, const char* data, size_t length) {
+	if (this->connections_.find(fd) == this->connections_.end()) {
+		return;
+	}
 	this->connections_.at(fd)->appendRequestData(data, length);
 }
 
@@ -43,7 +46,7 @@ void Connections::addConnection(int fd) {
 void Connections::removeConnection(int fd) {
 	// Ensure the connection exists before deleting
 	if (this->connections_.find(fd) == this->connections_.end()) {
-		throw std::runtime_error("Attempting to remove a non-existent connection");
+		return ;
 	}
 
 	delete this->connections_.at(fd); // Free the memory
@@ -95,5 +98,8 @@ size_t Connections::getBodySize(int fd) const {
 }
 
 void Connections::appendCgiBuffer(int fd, int pipeFd, const std::string& data, bool isEnd) {
+	if (this->connections_.find(fd) == this->connections_.end()) {
+		return;
+	}
 	this->connections_.at(fd)->appendCgiBuffer(pipeFd, data, isEnd);
 }

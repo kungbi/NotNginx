@@ -66,7 +66,7 @@ void Webserver::processEvents(int fd, EventInfo* eventInfo) {
 	if (eventInfo->type == KQUEUE_EVENT::CGI_RESPONSE) {
         std::cout << "CGI response event." << std::endl;
         if (processCgiResponse(fd, eventInfo) == 0) {
-			// delete eventInfo;
+			delete eventInfo;
 		}
     }
 }

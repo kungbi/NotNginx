@@ -54,10 +54,15 @@ void Kqueue::addEvent(int fd, int eventType, int serverFd) {
 
 	EV_SET(&event, fd, filter, EV_ADD | EV_ENABLE, 0, 0, eventInfo);
 	if (kevent(kqueueFd_, &event, 1, nullptr, 0, nullptr) == -1) {
-		throw std::runtime_error("Failed to add FD to kqueue");
+		// throw std::runtime_error("Failed to add FD to kqueue");
 	}
 
 	std::cout << "FD: " << fd << " added with filter: " << filter << std::endl;
+}
+
+bool Kqueue::isEventExists(int fd, int eventType) {
+	std::pair<int, int> key = std::make_pair(fd, eventType);
+	return eventInfoMap_.find(key) != eventInfoMap_.end();
 }
 
 void Kqueue::addEvent(int fd, int eventType, int clientFd, int serverFd) {

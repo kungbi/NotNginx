@@ -43,6 +43,7 @@ public:
 	void addEvent(int fd, int eventType, int serverFd);
 	void addEvent(int fd, int eventType, int clientFd, int serverFd);
 	void removeEvent(int fd, int filter);
+	bool isEventExists(int fd, int eventType);
 	struct kevent* pollEvents();
 };
 

@@ -99,6 +99,10 @@ int Server::handleRequest(int clientFd) { // <- 함수 분리 전
 
 int Server::handleResponse(int clientFd) {
 	std::cout << "Handling response for client FD: " << clientFd << std::endl;
+	if (!this->connections_.hasConnection(clientFd)) {
+		std::cout << "No connection found for client FD: " << clientFd << std::endl;
+		throw InternalServerError("No connection found for client FD");
+	}
 	if (!this->connections_.hasResponse(clientFd)) {
 		std::cout << "No response found for client FD: " << clientFd << std::endl;
 		throw InternalServerError("No response found for client FD");
@@ -121,11 +125,11 @@ int Server::handleCgiResponse(int cgiFd, int clientFd) {
 
 	if (bytesRead <= 0) {
 		std::cout << "CGI pipe closed." << std::endl;
-		this->connections_.appendCgiBuffer(clientFd, cgiFd, "", true); // CGI 응답 종료
+		this->connections_.appendCgiBuffer(clientFd, cgiFd, "", true);
 		this->kqueue_.addEvent(clientFd, KQUEUE_EVENT::RESPONSE, this->getSocketFd());
-		this->kqueue_.removeEvent(cgiFd, EVFILT_READ); // CGI FD에서 이벤트 제거
-		close(cgiFd); // CGI FD 닫기
-		return 0; // 처리 완료
+		this->kqueue_.removeEvent(cgiFd, EVFILT_READ);
+		close(cgiFd);
+		return 0;
 	}
 
 	// CGI 응답을 연결 객체에 저장
