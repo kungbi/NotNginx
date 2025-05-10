@@ -3,6 +3,23 @@
 #include <iostream>
 #include <iterator>
 
+
+int RequestParser::stoiSafe(const std::string& s, int defaultValue = 0) {
+	try {
+		size_t idx;
+		int value = std::stoi(s, &idx);
+		if (idx != s.length()) {
+			throw std::invalid_argument("Contains non-digit characters");
+		}
+		return value;
+	} catch (const std::invalid_argument& e) {
+		std::cerr << "Warning: stoiSafe - invalid argument: " << s << " (" << e.what() << ")" << std::endl;
+	} catch (const std::out_of_range& e) {
+		std::cerr << "Warning: stoiSafe - out of range: " << s << " (" << e.what() << ")" << std::endl;
+	}
+	return defaultValue;
+}
+
 Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 	if (originalRequest.empty()) {
 		throw std::invalid_argument("originalRequest is empty!");
@@ -53,9 +70,9 @@ Request RequestParser::parseRequestHeader(const std::string& originalRequest) {
 		(method == "PATCH") ? PATCH : DELETE;
 
 	return Request(requestType, version, headerResult.host, target, uri.query,
-				   uri.filename, uri.extension, uri.path, headerResult.port,
-				   headerResult.connection, headerResult.contentLength,
-				   headerResult.accept, body, headerResult.contentType);
+				uri.filename, uri.extension, uri.path, headerResult.port,
+				headerResult.connection, headerResult.contentLength,
+				headerResult.accept, body, headerResult.contentType);
 }
 
 
@@ -88,11 +105,11 @@ HeaderResult RequestParser::parseHeaders(std::istringstream& stream) {
 		if (key == "Host") {
 			size_t portPos = value.find(':');
 			result.host = (portPos != std::string::npos) ? value.substr(0, portPos) : value;
-			result.port = (portPos != std::string::npos) ? std::stoi(value.substr(portPos + 1)) : 0;
+			result.port = (portPos != std::string::npos) ? stoiSafe(value.substr(portPos + 1), 0) : 0;
 		} else if (key == "Connection") {
 			result.connection = value;
 		} else if (key == "Content-Length") {
-			result.contentLength = std::stoi(value);
+			result.contentLength = stoiSafe(value, 0);
 		} else if (key == "Accept") {
 			result.accept = value;
 		} else if (key == "Content-Type") {

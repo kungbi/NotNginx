@@ -7,6 +7,7 @@
 # include "Request.hpp"
 # include "HttpExceptions.hpp"
 
+
 class Request; 
 
 
@@ -44,7 +45,9 @@ private:
 public:
 	static Request parseRequestHeader(const std::string& originalRequest);
 	static UriComponents parseUri(const std::string& target);
+	static int stoiSafe(const std::string& s, int defaultValue);
 
 };
+
 
 #endif

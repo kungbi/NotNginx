@@ -1,5 +1,6 @@
 #include "ConfigAdapter.hpp"
 
+
 HTTPConfig *ConfigAdapter::convertToHTTPConfig(ConfigData& configData) {
 	std::vector<ServerConfig*>* servers = new std::vector<ServerConfig*>(); // Initialize the vector of ServerConfig pointers
 	IConfigContext* rootContext = configData.getRoot();
@@ -44,7 +45,7 @@ ServerConfig ConfigAdapter::convertToServerConfig(IConfigContext* serverContext)
 				if (!values.empty()) host = values[0];
 				break;
 			case PORT:
-				if (!values.empty()) port = std::stoi(values[0]);
+				if (!values.empty()) port = RequestParser::stoiSafe(values[0], 0);
 				break;
 			case SERVER_NAME:
 				if (!values.empty()) serverName = values[0];
@@ -59,7 +60,7 @@ ServerConfig ConfigAdapter::convertToServerConfig(IConfigContext* serverContext)
 			
 					for (size_t j = 0; j < values.size() - 1; ++j)  // 마지막 값 제외
 					{
-						int errorCode = std::stoi(values[j]);
+						int errorCode = RequestParser::stoiSafe(values[j], 0);
 						errorPages[errorCode] = errorPagePath;  // 모든 상태 코드에 같은 페이지 경로 할당
 					}
 				}
@@ -120,7 +121,7 @@ LocationConfig ConfigAdapter::convertToLocationConfig(IConfigContext* locationCo
 			case RETURN:
 				if (values.size() >= 2)
 				{
-					int statusCode = std::stoi(values[0]);
+					int statusCode = RequestParser::stoiSafe(values[0], 0);
 					std::string redirectPath = values[1];
 					redirect.push_back(make_pair(statusCode, redirectPath));
 				}

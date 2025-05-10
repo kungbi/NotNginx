@@ -5,6 +5,7 @@
 #include "ServerConfig.hpp"
 #include "LocationConfig.hpp"
 #include "ConfigData.hpp"
+#include "RequestParser.hpp"
 
 class ConfigAdapter
 {
