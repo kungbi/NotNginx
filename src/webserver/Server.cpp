@@ -108,6 +108,7 @@ int Server::handleResponse(int clientFd) {
 		throw InternalServerError("No response found for client FD");
 	}
 
+	std::cout << "Sending response to client FD: " << clientFd << std::endl;
 	Response* response = this->connections_.getResponse(clientFd);
 	if (sendResponse(clientFd, response->getResponse())) {
 		// closeConnection(clientFd);

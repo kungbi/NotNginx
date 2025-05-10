@@ -47,8 +47,10 @@ void Kqueue::addEvent(int fd, int eventType, int serverFd) {
 	struct kevent event;
 	EventInfo* eventInfo = new EventInfo(eventType, serverFd);
 
-	if (eventInfoMap_[std::make_pair(fd, eventType)]) {
+	if (this->isEventExists(fd, eventType)) {
+		std::cout << "Event already exists for fd: " << fd << std::endl;
 		delete eventInfoMap_[std::make_pair(fd, eventType)];
+		eventInfoMap_.erase(std::make_pair(fd, eventType));
 	}
 	eventInfoMap_[std::make_pair(fd, eventType)] = eventInfo;
 
@@ -70,6 +72,12 @@ void Kqueue::addEvent(int fd, int eventType, int clientFd, int serverFd) {
 	struct kevent event;
 	EventInfo* eventInfo = new EventInfo(eventType, serverFd, clientFd);
 
+	std::cout << "Adding event for fd: " << fd << std::endl;
+	if (this->isEventExists(fd, eventType)) {
+		delete eventInfoMap_[std::make_pair(fd, eventType)];
+		eventInfoMap_.erase(std::make_pair(fd, eventType));
+	}
+	std::cout << "Event already exists for fd: " << fd << std::endl;
 	eventInfoMap_[std::make_pair(fd, eventType)] = eventInfo;
 
 	EV_SET(&event, fd, filter, EV_ADD | EV_ENABLE, 0, 0, eventInfo);
